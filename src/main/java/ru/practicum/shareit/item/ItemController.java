@@ -1,11 +1,10 @@
-package ru.practicum.shareit.item.controller;
+package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
-                          @RequestBody ItemDto itemDto) throws AbsentHeaderException, IncorrectUserException, ValidationException {
+                          @RequestBody ItemDto itemDto) throws AbsentHeaderException, IncorrectObjectException, IncorrectFieldException {
         checkHeaderExists(userId);
         itemDto = itemService.addNewItem(userId, itemDto);
         log.info("POST /items {}", itemDto);
@@ -27,7 +26,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
-                       @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId) throws IncorrectUserException, AbsentHeaderException, IncorrectItemException {
+                          @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId) throws IncorrectObjectException, AbsentHeaderException {
         checkHeaderExists(userId);
         itemDto = itemService.updateItem(userId, itemDto, itemId);
         log.info("PATCH /items {}", itemDto);
@@ -35,7 +34,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findById(@PathVariable("itemId") Long itemId) throws IncorrectItemException {
+    public ItemDto findById(@PathVariable("itemId") Long itemId) throws IncorrectObjectException {
         log.info("GET /items/" + itemId);
         return itemService.getItemById(itemId);
     }

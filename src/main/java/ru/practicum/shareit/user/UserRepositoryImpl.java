@@ -1,11 +1,13 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.util.*;
 
 @Component
-public class UserRepositoryImpl implements UserRepository{
+public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private Long id = 0L;
 
@@ -17,9 +19,9 @@ public class UserRepositoryImpl implements UserRepository{
     }
 
     @Override
-    public User updateUser(User newUser) {
-        users.put(newUser.getId(), newUser);
-        return newUser;
+    public User updateUser(User user) {
+        users.put(user.getId(), user);
+        return user;
     }
 
     @Override

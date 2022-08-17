@@ -1,4 +1,6 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.dto;
+
+import ru.practicum.shareit.item.model.Item;
 
 public class ItemMapper {
     public static ItemDto mapToItemDto(Item item) {
@@ -10,6 +12,7 @@ public class ItemMapper {
                 item.getRequest() != null ? item.getRequest() : null
         );
     }
+
     public static Item mapToItemEntity(ItemDto itemDto, Long ownerId) {
         return new Item(
                 itemDto.getId(),

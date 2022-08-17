@@ -1,7 +1,7 @@
 package ru.practicum.shareit.exception;
 
-public class IncorrectUserException extends Exception{
-    public IncorrectUserException(String message) {
+public class IncorrectObjectException extends Exception {
+    public IncorrectObjectException(String message) {
         super(message);
     }
 }

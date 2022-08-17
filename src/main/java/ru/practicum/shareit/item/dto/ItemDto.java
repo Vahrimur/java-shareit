@@ -1,7 +1,6 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.user.User;
 
 @Data
 public class ItemDto {
