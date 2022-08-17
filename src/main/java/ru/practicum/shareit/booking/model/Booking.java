@@ -7,19 +7,11 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 
 @Data
-public class BookingDto {
+public class Booking {
     private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
     private Item item;
     private User booker;
     private Status status;
-
-    public BookingDto(LocalDateTime start, LocalDateTime end, Item item, User booker, Status status) {
-        this.start = start;
-        this.end = end;
-        this.item = item;
-        this.booker = booker;
-        this.status = status;
-    }
 }

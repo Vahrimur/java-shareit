@@ -1,12 +1,60 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.service.ItemService;
 
-/**
- * // TODO .
- */
+import java.util.List;
+
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
+    private final ItemService itemService;
+
+    @PostMapping
+    public ItemDto create(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
+                          @RequestBody ItemDto itemDto) throws AbsentHeaderException, IncorrectUserException, ValidationException {
+        checkHeaderExists(userId);
+        itemDto = itemService.addNewItem(userId, itemDto);
+        log.info("POST /items {}", itemDto);
+        return itemDto;
+    }
+
+    @PatchMapping("/{itemId}")
+    public ItemDto update(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
+                       @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId) throws IncorrectUserException, AbsentHeaderException, IncorrectItemException {
+        checkHeaderExists(userId);
+        itemDto = itemService.updateItem(userId, itemDto, itemId);
+        log.info("PATCH /items {}", itemDto);
+        return itemDto;
+    }
+
+    @GetMapping("/{itemId}")
+    public ItemDto findById(@PathVariable("itemId") Long itemId) throws IncorrectItemException {
+        log.info("GET /items/" + itemId);
+        return itemService.getItemById(itemId);
+    }
+
+    @GetMapping
+    public List<ItemDto> findAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("GET /items by owner id={}", userId);
+        return itemService.getAllItemsByUserId(userId);
+    }
+
+    @GetMapping("/search")
+    public List<ItemDto> searchByText(@RequestParam String text) {
+        log.info("GET /items/search?text=" + text);
+        return itemService.searchItemsByText(text);
+    }
+
+    private void checkHeaderExists(Long userId) throws AbsentHeaderException {
+        if (userId == null) {
+            throw new AbsentHeaderException("Отсутствует заголовок X-Sharer-User-Id.");
+        }
+    }
 }
