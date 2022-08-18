@@ -16,18 +16,17 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto create(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
-                          @RequestBody ItemDto itemDto) throws AbsentHeaderException, IncorrectObjectException, IncorrectFieldException {
-        checkHeaderExists(userId);
+    public ItemDto create(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
+                          @RequestBody ItemDto itemDto) throws IncorrectObjectException, IncorrectFieldException {
         itemDto = itemService.addNewItem(userId, itemDto);
         log.info("POST /items {}", itemDto);
         return itemDto;
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
-                          @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId) throws IncorrectObjectException, AbsentHeaderException {
-        checkHeaderExists(userId);
+    public ItemDto update(@RequestHeader(value = "X-Sharer-User-Id") Long userId,
+                          @RequestBody ItemDto itemDto, @PathVariable("itemId") Long itemId)
+            throws IncorrectObjectException {
         itemDto = itemService.updateItem(userId, itemDto, itemId);
         log.info("PATCH /items {}", itemDto);
         return itemDto;
@@ -49,11 +48,5 @@ public class ItemController {
     public List<ItemDto> searchByText(@RequestParam String text) {
         log.info("GET /items/search?text=" + text);
         return itemService.searchItemsByText(text);
-    }
-
-    private void checkHeaderExists(Long userId) throws AbsentHeaderException {
-        if (userId == null) {
-            throw new AbsentHeaderException("Отсутствует заголовок X-Sharer-User-Id.");
-        }
     }
 }

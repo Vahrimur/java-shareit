@@ -24,7 +24,8 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@RequestBody UserDto userDto, @PathVariable("userId") Long userId) throws IncorrectFieldException, SameEmailException, IncorrectObjectException {
+    public UserDto update(@RequestBody UserDto userDto, @PathVariable("userId") Long userId)
+            throws IncorrectFieldException, SameEmailException, IncorrectObjectException {
         userDto = userService.updateUser(userDto, userId);
         log.info("PATCH /users {}", userDto);
         return userDto;

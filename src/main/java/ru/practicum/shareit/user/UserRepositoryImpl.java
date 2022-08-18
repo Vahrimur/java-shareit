@@ -1,8 +1,6 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserRepository;
 
 import java.util.*;
 
@@ -40,6 +38,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private long getId() {
-        return id++ + 1;
+        return ++id;
     }
 }

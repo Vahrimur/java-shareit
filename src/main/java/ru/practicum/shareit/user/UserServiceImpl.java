@@ -6,7 +6,6 @@ import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.IncorrectObjectException;
 import ru.practicum.shareit.exception.SameEmailException;
 import ru.practicum.shareit.exception.IncorrectFieldException;
-import ru.practicum.shareit.user.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +24,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto, Long userId) throws IncorrectFieldException, SameEmailException, IncorrectObjectException {
+    public UserDto updateUser(UserDto userDto, Long userId)
+            throws IncorrectFieldException, SameEmailException, IncorrectObjectException {
         User user = UserMapper.mapToUserEntity(userDto);
         user.setId(userId);
         checkUserExist(user.getId());

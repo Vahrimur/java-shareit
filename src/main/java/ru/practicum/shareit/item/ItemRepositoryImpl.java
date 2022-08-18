@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
@@ -38,6 +37,6 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     private long getId() {
-        return id++ + 1;
+        return ++id;
     }
 }
