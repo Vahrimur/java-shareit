@@ -28,10 +28,10 @@ public class ItemMapper {
     }
 
     public static List<ItemDto> mapToItemDto(Iterable<Item> items) {
-        List<ItemDto> ItemDtos = new ArrayList<>();
+        List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items) {
-            ItemDtos.add(mapToItemDto(item));
+            itemDtos.add(mapToItemDto(item));
         }
-        return ItemDtos;
+        return itemDtos;
     }
 }
