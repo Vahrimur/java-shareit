@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.IncorrectObjectException;
-import ru.practicum.shareit.exception.SameEmailException;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 
 import java.util.List;
@@ -16,54 +15,51 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto createUser(UserDto userDto) throws IncorrectFieldException, SameEmailException {
+    public UserDto createUser(UserDto userDto) throws IncorrectFieldException {
         User user = UserMapper.mapToUserEntity(userDto);
         checkEmailExists(user);
         checkCorrectEmail(user);
-        return UserMapper.mapToUserDto(userRepository.createUser(user));
+        return UserMapper.mapToUserDto(userRepository.save(user));
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, Long userId)
-            throws IncorrectFieldException, SameEmailException, IncorrectObjectException {
+            throws IncorrectFieldException, IncorrectObjectException {
         User user = UserMapper.mapToUserEntity(userDto);
         user.setId(userId);
         checkUserExist(user.getId());
         checkCorrectEmail(user);
         if (user.getEmail() == null) {
-            user.setEmail(userRepository.getUserById(user.getId()).getEmail());
+            user.setEmail(userRepository.getById(user.getId()).getEmail());
         }
         if (user.getName() == null) {
-            user.setName(userRepository.getUserById(user.getId()).getName());
+            user.setName(userRepository.getById(user.getId()).getName());
         }
-        return UserMapper.mapToUserDto(userRepository.updateUser(user));
+        return UserMapper.mapToUserDto(userRepository.save(user));
     }
 
     @Override
     public void deleteUser(Long userId) throws IncorrectObjectException {
         checkUserExist(userId);
-        userRepository.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
     public UserDto getUserById(Long userId) throws IncorrectObjectException {
         checkUserExist(userId);
-        return UserMapper.mapToUserDto(userRepository.getUserById(userId));
+        return UserMapper.mapToUserDto(userRepository.getById(userId));
     }
 
     @Override
     public List<UserDto> getAllUsers() {
-        List<User> users = userRepository.getAllUsers();
-        return users
-                .stream()
-                .map(UserMapper::mapToUserDto)
-                .collect(Collectors.toList());
+        List<User> users = userRepository.findAll();
+        return UserMapper.mapToUserDto(users);
     }
 
     @Override
     public void checkUserExist(Long userId) throws IncorrectObjectException {
-        if (!userRepository.getAllUsers().isEmpty()) {
-            List<Long> ids = userRepository.getAllUsers()
+        if (!userRepository.findAll().isEmpty()) {
+            List<Long> ids = userRepository.findAll()
                     .stream()
                     .map(User::getId)
                     .collect(Collectors.toList());
@@ -81,18 +77,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void checkCorrectEmail(User user) throws IncorrectFieldException, SameEmailException {
+    private void checkCorrectEmail(User user) throws IncorrectFieldException {
         if (user.getEmail() != null && !user.getEmail().contains("@")) {
             throw new IncorrectFieldException("Email должен содержать @");
-        }
-        if (!userRepository.getAllUsers().isEmpty()) {
-            List<String> emails = userRepository.getAllUsers()
-                    .stream()
-                    .map(User::getEmail)
-                    .collect(Collectors.toList());
-            if (emails.contains(user.getEmail())) {
-                throw new SameEmailException("Пользователь с таким email уже существует");
-            }
         }
     }
 }
