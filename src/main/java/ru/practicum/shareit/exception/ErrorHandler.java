@@ -16,7 +16,7 @@ public class ErrorHandler {
     public ErrorResponse handleIncorrectFieldException(final IncorrectFieldException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка поля объекта", e.getMessage()
+                "Incorrect field error", e.getMessage()
         );
     }
 
@@ -25,7 +25,7 @@ public class ErrorHandler {
     public ErrorResponse handleSameEmailException(final SameEmailException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка повтора имейла", e.getMessage()
+                "Same email error", e.getMessage()
         );
     }
 
@@ -34,7 +34,7 @@ public class ErrorHandler {
     public ErrorResponse handleIncorrectObjectException(final IncorrectObjectException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка объекта", e.getMessage()
+                "Incorrect object error", e.getMessage()
         );
     }
 
@@ -43,7 +43,7 @@ public class ErrorHandler {
     public ErrorResponse handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка заголовка", e.getMessage()
+                "Missing request header error", e.getMessage()
         );
     }
 
@@ -53,7 +53,7 @@ public class ErrorHandler {
             final MissingServletRequestParameterException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка отсутствия параметра", e.getMessage()
+                "Missing request parameter error", e.getMessage()
         );
     }
 

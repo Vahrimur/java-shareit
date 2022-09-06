@@ -10,19 +10,19 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.booker.id = ?1 order by b.start desc")
-    List<Booking> findAllByBooker_Id(Long bookerId);
+    List<Booking> findAllByBookerId(Long bookerId);
 
     @Query("select b from Booking b where b.booker.id = ?1 and ?2 between b.start and b.end order by b.start desc")
-    List<Booking> findAllByBooker_IdCurrent(Long bookerId, LocalDateTime now);
+    List<Booking> findAllByBookerIdCurrent(Long bookerId, LocalDateTime now);
 
     @Query("select b from Booking b where b.booker.id = ?1 and b.start > ?2 order by b.start desc")
-    List<Booking> findAllByBooker_IdFuture(Long bookerId, LocalDateTime now);
+    List<Booking> findAllByBookerIdFuture(Long bookerId, LocalDateTime now);
 
     @Query("select b from Booking b where b.booker.id = ?1 and b.end < ?2 order by b.start desc")
-    List<Booking> findAllByBooker_IdPast(Long bookerId, LocalDateTime now);
+    List<Booking> findAllByBookerIdPast(Long bookerId, LocalDateTime now);
 
     @Query("select b from Booking b where b.booker.id = ?1 and b.status = ?2 order by b.start desc")
-    List<Booking> findAllByBooker_IdAndStatus(Long bookerId, BookingStatus status);
+    List<Booking> findAllByBookerIdAndStatus(Long bookerId, BookingStatus status);
 
     @Query(value = "select b from Booking b where b.item in :items order by b.start desc ")
     List<Booking> findAllByItems(@Param("items") List<Item> items);

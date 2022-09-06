@@ -80,26 +80,26 @@ public class BookingServiceImpl implements BookingService {
             throws IncorrectObjectException, IncorrectEnumException {
         userService.checkUserExist(bookerId);
         checkState(state);
-        State state1 = State.valueOf(state);
+        State bookingState = State.valueOf(state);
         List<Booking> bookings = new ArrayList<>();
-        switch (state1) {
+        switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findAllByBooker_Id(bookerId);
+                bookings = bookingRepository.findAllByBookerId(bookerId);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(bookerId, BookingStatus.WAITING);
+                bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.REJECTED);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBooker_IdCurrent(bookerId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByBookerIdCurrent(bookerId, LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBooker_IdFuture(bookerId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByBookerIdFuture(bookerId, LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBooker_IdPast(bookerId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByBookerIdPast(bookerId, LocalDateTime.now());
                 break;
         }
         return BookingForUpdateAndGetMapper.mapToBookingDto(bookings);
@@ -110,10 +110,10 @@ public class BookingServiceImpl implements BookingService {
             throws IncorrectObjectException, IncorrectEnumException {
         userService.checkUserExist(ownerId);
         checkState(state);
-        State state1 = State.valueOf(state);
+        State bookingState = State.valueOf(state);
         List<Booking> bookings = new ArrayList<>();
         List<Item> itemsByOwnerId = itemRepository.findAllByOwnerId(ownerId);
-        switch (state1) {
+        switch (bookingState) {
             case ALL:
                 bookings = bookingRepository.findAllByItems(itemsByOwnerId);
                 break;
@@ -145,13 +145,13 @@ public class BookingServiceImpl implements BookingService {
 
     private void checkCorrectTime(Booking booking) throws IncorrectFieldException {
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
-            throw new IncorrectFieldException("Конец аренды не может быть в прошлом");
+            throw new IncorrectFieldException("The end of the booking cannot be in the past");
         }
         if (booking.getEnd().isBefore(booking.getStart())) {
-            throw new IncorrectFieldException("Конец аренды не может быть раньше начала");
+            throw new IncorrectFieldException("The end of the booking cannot be earlier than the beginning");
         }
         if (booking.getStart().isBefore(LocalDateTime.now())) {
-            throw new IncorrectFieldException("Начало аренды не может быть в прошлом");
+            throw new IncorrectFieldException("The beginning of the booking cannot be in the past");
         }
     }
 
@@ -162,24 +162,24 @@ public class BookingServiceImpl implements BookingService {
                     .map(Booking::getId)
                     .collect(Collectors.toList());
             if (!ids.contains(bookingId)) {
-                throw new IncorrectObjectException("Введён некорректный id бронирования");
+                throw new IncorrectObjectException("There is no booking with such ID");
             }
         } else {
-            throw new IncorrectObjectException("Введён некорректный id бронирования");
+            throw new IncorrectObjectException("There is no booking with such ID");
         }
     }
 
     private void checkSameStatus(Booking booking, boolean approved) throws IncorrectFieldException {
         if (booking.getStatus().equals(BookingStatus.APPROVED) && approved
                 || booking.getStatus().equals(BookingStatus.REJECTED) && !approved) {
-            throw new IncorrectFieldException("Невозможно обновить статус на тот же самый");
+            throw new IncorrectFieldException("It is not possible to update the booking status to the same");
         }
     }
 
     private void checkCorrectItemOwnerOrBooker(Item item, Booking booking, Long userId)
             throws IncorrectObjectException {
         if (!booking.getBooker().getId().equals(userId) && !item.getOwnerId().equals(userId)) {
-            throw new IncorrectObjectException("Указан некорректный id арендатора или владельца вещи");
+            throw new IncorrectObjectException("Incorrect item owner or booker ID is specified");
         }
     }
 
@@ -187,10 +187,10 @@ public class BookingServiceImpl implements BookingService {
     public void checkCorrectItemBookerAndBookingEnded(Long userId, Long itemId) throws IncorrectFieldException {
         List<Booking> bookings = bookingRepository.findAllByItemIdAndBookerId(itemId, userId);
         if (bookings.stream().noneMatch(b -> b.getStart().isBefore(LocalDateTime.now()))) {
-            throw new IncorrectFieldException("Срок аренды вещи еще не началсяся");
+            throw new IncorrectFieldException("The booking of the item has not yet started");
         }
         if (bookings.stream().noneMatch(b -> b.getBooker().getId().equals(userId))) {
-            throw new IncorrectFieldException("Указан некорректный id арендатора вещи");
+            throw new IncorrectFieldException("Incorrect item booker ID is specified");
         }
     }
 }

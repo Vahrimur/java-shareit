@@ -64,22 +64,22 @@ public class UserServiceImpl implements UserService {
                     .map(User::getId)
                     .collect(Collectors.toList());
             if (!ids.contains(userId)) {
-                throw new IncorrectObjectException("Введён некорректный id пользователя");
+                throw new IncorrectObjectException("There is no user with such ID");
             }
         } else {
-            throw new IncorrectObjectException("Введён некорректный id пользователя");
+            throw new IncorrectObjectException("There is no user with such ID");
         }
     }
 
     private void checkEmailExists(User user) throws IncorrectFieldException {
         if (!StringUtils.hasText(user.getEmail())) {
-            throw new IncorrectFieldException("Email не может быть пустым");
+            throw new IncorrectFieldException("The email of the user cannot be empty");
         }
     }
 
     private void checkCorrectEmail(User user) throws IncorrectFieldException {
         if (user.getEmail() != null && !user.getEmail().contains("@")) {
-            throw new IncorrectFieldException("Email должен содержать @");
+            throw new IncorrectFieldException("The email of the user must contain @");
         }
     }
 }

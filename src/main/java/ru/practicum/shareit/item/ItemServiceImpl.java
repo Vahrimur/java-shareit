@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(Long userId, ItemDto itemDto, Long itemId)
-            throws IncorrectObjectException, IncorrectFieldException {
+            throws IncorrectObjectException {
         Item item = ItemMapper.mapToItemEntity(itemDto, userId);
         item.setId(itemId);
         userService.checkUserExist(userId);
@@ -66,7 +66,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDtoForGet getItemById(Long itemId, Long userId)
-            throws IncorrectObjectException, IncorrectFieldException {
+            throws IncorrectObjectException {
         checkItemExist(itemId);
         userService.checkUserExist(userId);
         BookingDto lastBookingDto;
@@ -134,13 +134,13 @@ public class ItemServiceImpl implements ItemService {
 
     private void checkCorrectItem(Item item) throws IncorrectFieldException {
         if (item.getAvailable() == null || !item.getAvailable()) {
-            throw new IncorrectFieldException("Вещь должна быть доступна для аренды");
+            throw new IncorrectFieldException("The item must be available for booking");
         }
         if (item.getName() == null || item.getName().equals("")) {
-            throw new IncorrectFieldException("Название не может быть пустым");
+            throw new IncorrectFieldException("The name of the item cannot be empty");
         }
         if (item.getDescription() == null) {
-            throw new IncorrectFieldException("Описание не может быть пустым");
+            throw new IncorrectFieldException("The description of the item cannot be empty");
         }
     }
 
@@ -151,10 +151,10 @@ public class ItemServiceImpl implements ItemService {
                     .map(Item::getId)
                     .collect(Collectors.toList());
             if (!ids.contains(id)) {
-                throw new IncorrectObjectException("Не существует вещи с таким id");
+                throw new IncorrectObjectException("There is no item with such ID");
             }
         } else {
-            throw new IncorrectObjectException("Не существует вещи с таким id");
+            throw new IncorrectObjectException("There is no item with such ID");
         }
     }
 
@@ -162,28 +162,28 @@ public class ItemServiceImpl implements ItemService {
     public void checkItemAvailable(Long id) throws IncorrectFieldException {
         Item item = itemRepository.findById(id).get();
         if (!item.getAvailable()) {
-            throw new IncorrectFieldException("Вещь не доступна для аренды");
+            throw new IncorrectFieldException("The item is not available for booking");
         }
     }
 
     @Override
     public void checkCorrectItemOwner(Long itemId, Long userId) throws IncorrectObjectException {
         if (!Objects.equals(itemRepository.getById(itemId).getOwnerId(), userId)) {
-            throw new IncorrectObjectException("Указан некорректный id владельца вещи");
+            throw new IncorrectObjectException("Incorrect item owner ID is specified");
         }
     }
 
     @Override
     public void checkItemOwner(Long itemId, Long userId) throws IncorrectObjectException {
         if (Objects.equals(itemRepository.getById(itemId).getOwnerId(), userId)) {
-            throw new IncorrectObjectException("Данный пользователь является владельцем вещи");
+            throw new IncorrectObjectException("This user is the owner of the item");
         }
     }
 
 
     private void checkTextExists(CommentDto commentDto) throws IncorrectFieldException {
         if (!StringUtils.hasText(commentDto.getText())) {
-            throw new IncorrectFieldException("Текст комментария не может быть пустым");
+            throw new IncorrectFieldException("The comment text cannot be empty");
         }
     }
 
@@ -192,7 +192,7 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .findFirst()
                 .orElse(null);
-        BookingDto lastBookingDto = new BookingDto();
+        BookingDto lastBookingDto;
         if (lastBooking != null) {
             lastBookingDto = BookingMapper.mapToBookingDto(lastBooking);
         } else {
@@ -206,7 +206,7 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .findFirst()
                 .orElse(null);
-        BookingDto nextBookingDto = new BookingDto();
+        BookingDto nextBookingDto;
         if (nextBooking != null) {
             nextBookingDto = BookingMapper.mapToBookingDto(nextBooking);
         } else {
