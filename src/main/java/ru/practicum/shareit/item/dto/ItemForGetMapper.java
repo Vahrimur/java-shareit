@@ -1,22 +1,28 @@
 package ru.practicum.shareit.item.dto;
 
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ItemMapper {
-    public static ItemDto mapToItemDto(Item item) {
-        return new ItemDto(
+public class ItemForGetMapper {
+    public static ItemDtoForGet mapToItemDto(Item item,
+                                             BookingDto lastBooking,
+                                             BookingDto nextBooking,
+                                             List<CommentDto> comments) {
+        return new ItemDtoForGet(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
+                lastBooking,
+                nextBooking,
+                comments,
                 item.getRequestId() != null ? item.getRequestId() : null
         );
     }
 
-    public static Item mapToItemEntity(ItemDto itemDto, Long ownerId) {
+    public static Item mapToItemEntity(ItemDtoForGet itemDto, Long ownerId) {
         return new Item(
                 itemDto.getId(),
                 itemDto.getName(),
@@ -25,13 +31,5 @@ public class ItemMapper {
                 ownerId,
                 itemDto.getRequestId() != null ? itemDto.getRequestId() : null
         );
-    }
-
-    public static List<ItemDto> mapToItemDto(Iterable<Item> items) {
-        List<ItemDto> itemDtos = new ArrayList<>();
-        for (Item item : items) {
-            itemDtos.add(mapToItemDto(item));
-        }
-        return itemDtos;
     }
 }

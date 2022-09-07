@@ -3,6 +3,7 @@ package ru.practicum.shareit.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,7 +16,7 @@ public class ErrorHandler {
     public ErrorResponse handleIncorrectFieldException(final IncorrectFieldException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка поля объекта", e.getMessage()
+                "Incorrect field error", e.getMessage()
         );
     }
 
@@ -24,7 +25,7 @@ public class ErrorHandler {
     public ErrorResponse handleSameEmailException(final SameEmailException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка повтора имейла", e.getMessage()
+                "Same email error", e.getMessage()
         );
     }
 
@@ -33,7 +34,7 @@ public class ErrorHandler {
     public ErrorResponse handleIncorrectObjectException(final IncorrectObjectException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка объекта", e.getMessage()
+                "Incorrect object error", e.getMessage()
         );
     }
 
@@ -42,7 +43,24 @@ public class ErrorHandler {
     public ErrorResponse handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                "Ошибка заголовка", e.getMessage()
+                "Missing request header error", e.getMessage()
         );
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleMissingServletRequestParameterException(
+            final MissingServletRequestParameterException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                "Missing request parameter error", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(IncorrectEnumException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseShort handleIncorrectEnumException(final IncorrectEnumException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponseShort(e.getMessage());
     }
 }
