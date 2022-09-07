@@ -94,14 +94,11 @@ public class ItemServiceImpl implements ItemService {
         }
         for (Item item : items) {
             Long itemId = item.getId();
-            BookingDto lastBookingDto;
-            BookingDto nextBookingDto;
+            BookingDto lastBookingDto = null;
+            BookingDto nextBookingDto = null;
             if (Objects.equals(item.getOwnerId(), userId)) {
                 lastBookingDto = findLastBooking(itemId);
                 nextBookingDto = findNextBooking(itemId);
-            } else {
-                lastBookingDto = null;
-                nextBookingDto = null;
             }
             List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
             itemDtos.add(ItemForGetMapper.mapToItemDto(item, lastBookingDto, nextBookingDto, comments));
@@ -192,11 +189,9 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .findFirst()
                 .orElse(null);
-        BookingDto lastBookingDto;
+        BookingDto lastBookingDto = null;
         if (lastBooking != null) {
             lastBookingDto = BookingMapper.mapToBookingDto(lastBooking);
-        } else {
-            lastBookingDto = null;
         }
         return lastBookingDto;
     }
@@ -206,11 +201,9 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .findFirst()
                 .orElse(null);
-        BookingDto nextBookingDto;
+        BookingDto nextBookingDto = null;
         if (nextBooking != null) {
             nextBookingDto = BookingMapper.mapToBookingDto(nextBooking);
-        } else {
-            nextBookingDto = null;
         }
         return nextBookingDto;
     }
