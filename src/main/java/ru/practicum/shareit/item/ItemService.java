@@ -30,4 +30,8 @@ public interface ItemService {
 
     CommentDto addNewComment(Long userId, Long itemId, CommentDto commentDto)
             throws IncorrectObjectException, IncorrectFieldException;
+
+    List<ItemDtoForGet> getAllItemsByUserIdByPages(Long userId, Integer from, Integer size) throws IncorrectObjectException;
+
+    List<ItemDto> searchItemsByTextByPages(String text, Integer from, Integer size);
 }

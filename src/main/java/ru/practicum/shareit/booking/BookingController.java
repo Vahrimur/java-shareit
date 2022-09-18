@@ -46,17 +46,29 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoForUpdateAndGet> findAllByBooker(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                                           @RequestParam(defaultValue = "ALL") String state)
+                                                           @RequestParam(defaultValue = "ALL") String state,
+                                                           @RequestParam(required = false) Integer from,
+                                                           @RequestParam(required = false) Integer size)
             throws IncorrectObjectException, IncorrectEnumException {
-        log.info("GET /bookings {} by booker id={}", state, bookerId);
-        return bookingService.getAllBookingsByBookerId(bookerId, state);
+        if (from == null && size == null) {
+            log.info("GET /bookings {} by booker id={}", state, bookerId);
+            return bookingService.getAllBookingsByBookerId(bookerId, state);
+        }
+        log.info("GET /bookings {} by booker id={} from {}, size {}", state, bookerId, from, size);
+        return bookingService.getAllBookingsByBookerIdByPages(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDtoForUpdateAndGet> findAllByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                          @RequestParam(defaultValue = "ALL") String state)
+                                                          @RequestParam(defaultValue = "ALL") String state,
+                                                          @RequestParam(required = false) Integer from,
+                                                          @RequestParam(required = false) Integer size)
             throws IncorrectObjectException, IncorrectEnumException {
-        log.info("GET /bookings/owner {} by owner id={}", state, ownerId);
-        return bookingService.getAllBookingsByOwnerId(ownerId, state);
+        if (from == null && size == null) {
+            log.info("GET /bookings/owner {} by owner id={}", state, ownerId);
+            return bookingService.getAllBookingsByOwnerId(ownerId, state);
+        }
+        log.info("GET /bookings/owner {} by owner id={} from {}, size {}", state, ownerId, from, size);
+        return bookingService.getAllBookingsByOwnerIdByPages(ownerId, state, from, size);
     }
 }

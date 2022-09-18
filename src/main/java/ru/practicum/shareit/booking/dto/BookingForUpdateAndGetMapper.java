@@ -37,4 +37,12 @@ public class BookingForUpdateAndGetMapper {
                 bookingDto.getStatus()
         );
     }
+
+    public static List<Booking> mapToBookingEntity(Iterable<BookingDtoForUpdateAndGet> bookingDtos, Long ownerId) {
+        List<Booking> bookings = new ArrayList<>();
+        for (BookingDtoForUpdateAndGet booking : bookingDtos) {
+            bookings.add(mapToBookingEntity(booking, ownerId));
+        }
+        return bookings;
+    }
 }

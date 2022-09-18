@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForUpdateAndGet;
@@ -103,6 +106,82 @@ public class BookingServiceImpl implements BookingService {
                 break;
         }
         return BookingForUpdateAndGetMapper.mapToBookingDto(bookings);
+    }
+
+    @Override
+    public List<BookingDtoForUpdateAndGet> getAllBookingsByBookerIdByPages(Long bookerId, String state, Integer from, Integer size) throws IncorrectEnumException, IncorrectObjectException {
+        userService.checkUserExist(bookerId);
+        checkState(state);
+        checkPageableParams(from, size);
+        Pageable sorted = PageRequest.of((from / size), size, Sort.by("start").descending());
+        State bookingState = State.valueOf(state);
+        List<Booking> bookings = new ArrayList<>();
+        switch (bookingState) {
+            case ALL:
+                bookings = bookingRepository.findAllByBookerIdByPages(bookerId, sorted);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findAllByBookerIdAndStatusByPages(bookerId,
+                        BookingStatus.WAITING, sorted);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findAllByBookerIdAndStatusByPages(bookerId,
+                        BookingStatus.REJECTED, sorted);
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findAllByBookerIdCurrentByPages(bookerId, LocalDateTime.now(), sorted);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findAllByBookerIdFutureByPages(bookerId, LocalDateTime.now(), sorted);
+                break;
+            case PAST:
+                bookings = bookingRepository.findAllByBookerIdPastByPages(bookerId, LocalDateTime.now(), sorted);
+                break;
+        }
+        return BookingForUpdateAndGetMapper.mapToBookingDto(bookings);
+    }
+
+    @Override
+    public List<BookingDtoForUpdateAndGet> getAllBookingsByOwnerIdByPages(Long ownerId, String state, Integer from, Integer size) throws IncorrectObjectException, IncorrectEnumException {
+        userService.checkUserExist(ownerId);
+        checkState(state);
+        checkPageableParams(from, size);
+        Pageable sorted = PageRequest.of((from / size), size, Sort.by("start").descending());
+        State bookingState = State.valueOf(state);
+        List<Booking> bookings = new ArrayList<>();
+        List<Item> itemsByOwnerId = itemRepository.findAllByOwnerId(ownerId);
+        switch (bookingState) {
+            case ALL:
+                bookings = bookingRepository.findAllByItemsByPages(itemsByOwnerId, sorted);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findAllByItemsAndStatusByPages(itemsByOwnerId,
+                        BookingStatus.WAITING, sorted);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findAllByItemsAndStatusByPages(itemsByOwnerId,
+                        BookingStatus.REJECTED, sorted);
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findAllByItemsCurrentByPages(itemsByOwnerId, LocalDateTime.now(), sorted);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findAllByItemsFutureByPages(itemsByOwnerId, LocalDateTime.now(), sorted);
+                break;
+            case PAST:
+                bookings = bookingRepository.findAllByItemsPastByPages(itemsByOwnerId, LocalDateTime.now(), sorted);
+                break;
+        }
+        return BookingForUpdateAndGetMapper.mapToBookingDto(bookings);
+    }
+
+    private void checkPageableParams(Integer from, Integer size) {
+        if (from < 0) {
+            throw new IllegalArgumentException("Index of start element cannot be less zero");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Page size cannot be less or equal zero");
+        }
     }
 
     @Override

@@ -26,4 +26,8 @@ public interface BookingService {
 
     void checkCorrectItemBookerAndBookingEnded(Long userId, Long itemId)
             throws IncorrectObjectException, IncorrectFieldException;
+
+    List<BookingDtoForUpdateAndGet> getAllBookingsByBookerIdByPages(Long bookerId, String state, Integer from, Integer size) throws IncorrectEnumException, IncorrectObjectException;
+
+    List<BookingDtoForUpdateAndGet> getAllBookingsByOwnerIdByPages(Long ownerId, String state, Integer from, Integer size) throws IncorrectObjectException, IncorrectEnumException;
 }

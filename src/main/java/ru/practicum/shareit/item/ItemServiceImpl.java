@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.Booking;
@@ -127,6 +129,50 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = CommentMapper.mapToCommentEntity(commentDto, item, author);
         comment.setCreated(LocalDateTime.now());
         return CommentMapper.mapToCommentDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public List<ItemDtoForGet> getAllItemsByUserIdByPages(Long userId, Integer from, Integer size) throws IncorrectObjectException {
+        userService.checkUserExist(userId);
+        checkPageableParams(from, size);
+        Pageable sorted = PageRequest.of((from / size), size);
+        List<Item> items = itemRepository.findAllByOwnerIdByPages(userId, sorted);
+        List<ItemDtoForGet> itemDtos = new ArrayList<>();
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
+        for (Item item : items) {
+            Long itemId = item.getId();
+            BookingDto lastBookingDto = null;
+            BookingDto nextBookingDto = null;
+            if (Objects.equals(item.getOwnerId(), userId)) {
+                lastBookingDto = findLastBooking(itemId);
+                nextBookingDto = findNextBooking(itemId);
+            }
+            List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
+            itemDtos.add(ItemForGetMapper.mapToItemDto(item, lastBookingDto, nextBookingDto, comments));
+        }
+        return itemDtos;
+    }
+
+    @Override
+    public List<ItemDto> searchItemsByTextByPages(String text, Integer from, Integer size) {
+        checkPageableParams(from, size);
+        Pageable sorted = PageRequest.of((from / size), size);
+        List<Item> items = new ArrayList<>();
+        if (!text.equals("")) {
+            items = itemRepository.searchByTextByPages(text, sorted);
+        }
+        return ItemMapper.mapToItemDto(items);
+    }
+
+    private void checkPageableParams(Integer from, Integer size) {
+        if (from < 0) {
+            throw new IllegalArgumentException("Index of start element cannot be less zero");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Page size cannot be less or equal zero");
+        }
     }
 
     private void checkCorrectItem(Item item) throws IncorrectFieldException {

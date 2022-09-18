@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.dto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemForGetMapper {
@@ -31,5 +32,13 @@ public class ItemForGetMapper {
                 ownerId,
                 itemDto.getRequestId() != null ? itemDto.getRequestId() : null
         );
+    }
+
+    public static List<Item> mapToItemEntity(Iterable<ItemDtoForGet> itemDtos, Long ownerId) {
+        List<Item> items = new ArrayList<>();
+        for (ItemDtoForGet item : itemDtos) {
+            items.add(mapToItemEntity(item, ownerId));
+        }
+        return items;
     }
 }

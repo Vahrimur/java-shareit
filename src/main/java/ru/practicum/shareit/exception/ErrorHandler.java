@@ -63,4 +63,13 @@ public class ErrorHandler {
         log.warn(e.getMessage());
         return new ErrorResponseShort(e.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                "Incorrect parameter error", e.getMessage()
+        );
+    }
 }

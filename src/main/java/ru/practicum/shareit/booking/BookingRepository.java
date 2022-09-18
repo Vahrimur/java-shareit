@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,20 +13,38 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.booker.id = ?1 order by b.start desc")
     List<Booking> findAllByBookerId(Long bookerId);
 
+    @Query("select b from Booking b where b.booker.id = ?1")
+    List<Booking> findAllByBookerIdByPages(Long bookerId, Pageable pageable);
+
     @Query("select b from Booking b where b.booker.id = ?1 and ?2 between b.start and b.end order by b.start desc")
     List<Booking> findAllByBookerIdCurrent(Long bookerId, LocalDateTime now);
+
+    @Query("select b from Booking b where b.booker.id = ?1 and ?2 between b.start and b.end")
+    List<Booking> findAllByBookerIdCurrentByPages(Long bookerId, LocalDateTime now, Pageable pageable);
 
     @Query("select b from Booking b where b.booker.id = ?1 and b.start > ?2 order by b.start desc")
     List<Booking> findAllByBookerIdFuture(Long bookerId, LocalDateTime now);
 
+    @Query("select b from Booking b where b.booker.id = ?1 and b.start > ?2")
+    List<Booking> findAllByBookerIdFutureByPages(Long bookerId, LocalDateTime now, Pageable pageable);
+
     @Query("select b from Booking b where b.booker.id = ?1 and b.end < ?2 order by b.start desc")
     List<Booking> findAllByBookerIdPast(Long bookerId, LocalDateTime now);
+
+    @Query("select b from Booking b where b.booker.id = ?1 and b.end < ?2")
+    List<Booking> findAllByBookerIdPastByPages(Long bookerId, LocalDateTime now, Pageable pageable);
 
     @Query("select b from Booking b where b.booker.id = ?1 and b.status = ?2 order by b.start desc")
     List<Booking> findAllByBookerIdAndStatus(Long bookerId, BookingStatus status);
 
+    @Query("select b from Booking b where b.booker.id = ?1 and b.status = ?2")
+    List<Booking> findAllByBookerIdAndStatusByPages(Long bookerId, BookingStatus status, Pageable pageable);
+
     @Query(value = "select b from Booking b where b.item in :items order by b.start desc ")
     List<Booking> findAllByItems(@Param("items") List<Item> items);
+
+    @Query(value = "select b from Booking b where b.item in :items")
+    List<Booking> findAllByItemsByPages(@Param("items") List<Item> items, Pageable pageable);
 
     @Query(value = "select b from Booking b where b.item.id = :itemId and b.booker.id = :userId")
     List<Booking> findAllByItemIdAndBookerId(@Param("itemId") Long itemId, @Param("userId") Long userId);
@@ -33,15 +52,35 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "select b from Booking b where b.item in :items and b.status = :status order by b.start desc ")
     List<Booking> findAllByItemsAndStatus(@Param("items") List<Item> items, @Param("status") BookingStatus status);
 
+    @Query(value = "select b from Booking b where b.item in :items and b.status = :status")
+    List<Booking> findAllByItemsAndStatusByPages(@Param("items") List<Item> items,
+                                                 @Param("status") BookingStatus status,
+                                                 Pageable pageable);
+
     @Query(value = "select b from Booking b where b.item in :items and :now between b.start and b.end " +
             "order by b.start desc ")
     List<Booking> findAllByItemsCurrent(@Param("items") List<Item> items, @Param("now") LocalDateTime now);
 
+    @Query(value = "select b from Booking b where b.item in :items and :now between b.start and b.end")
+    List<Booking> findAllByItemsCurrentByPages(@Param("items") List<Item> items,
+                                               @Param("now") LocalDateTime now,
+                                               Pageable pageable);
+
     @Query(value = "select b from Booking b where b.item in :items and b.start > :now order by b.start desc ")
     List<Booking> findAllByItemsFuture(@Param("items") List<Item> items, @Param("now") LocalDateTime now);
 
+    @Query(value = "select b from Booking b where b.item in :items and b.start > :now")
+    List<Booking> findAllByItemsFutureByPages(@Param("items") List<Item> items,
+                                              @Param("now") LocalDateTime now,
+                                              Pageable pageable);
+
     @Query(value = "select b from Booking b where b.item in :items and b.end < :now order by b.start desc ")
     List<Booking> findAllByItemsPast(@Param("items") List<Item> items, @Param("now") LocalDateTime now);
+
+    @Query(value = "select b from Booking b where b.item in :items and b.end < :now")
+    List<Booking> findAllByItemsPastByPages(@Param("items") List<Item> items,
+                                            @Param("now") LocalDateTime now,
+                                            Pageable pageable);
 
     @Query(value = "select b from Booking b where b.item.id = :id and b.end < :now order by b.end desc ")
     List<Booking> findAllByItemIdAndEndBeforeNow(@Param("id") Long id, @Param("now") LocalDateTime now);
