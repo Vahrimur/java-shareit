@@ -63,7 +63,7 @@ public class UserServiceIntegrationTest {
 
         assertThat(users1, is(not(empty())));
 
-        service.deleteUser(1l);
+        service.deleteUser(1L);
 
         List<User> users2 = query.getResultList();
 

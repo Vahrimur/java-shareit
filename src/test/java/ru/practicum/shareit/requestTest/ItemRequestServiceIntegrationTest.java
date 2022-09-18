@@ -142,7 +142,7 @@ public class ItemRequestServiceIntegrationTest {
                 "description", itemRequestDto.getDescription()).getSingleResult();
 
         ItemRequest testItemRequest = ItemRequestForGetMapper.mapToItemRequestEntity(
-                itemRequestService.getItemRequestById(1l, 1l), requesterGet);
+                itemRequestService.getItemRequestById(1L, 1L), requesterGet);
 
         assertThat(testItemRequest, equalTo(itemRequestGot));
     }
