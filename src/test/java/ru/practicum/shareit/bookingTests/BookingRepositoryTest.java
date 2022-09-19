@@ -288,6 +288,7 @@ public class BookingRepositoryTest {
     void shouldFindAllByItemsCurrentByPages() {
         Pageable sorted = PageRequest.of((1 / 2), 2, Sort.by("start").descending());
         List<Item> items = itemRepository.findAll();
+        booking.setStart(LocalDateTime.now().minusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(1));
         Booking testBooking = bookingRepository.findAllByItemsCurrentByPages(items, LocalDateTime.now(), sorted).get(0);
 
