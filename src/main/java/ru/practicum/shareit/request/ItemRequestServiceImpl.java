@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ItemRequestServiceImpl implements  ItemRequestService {
+public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
 

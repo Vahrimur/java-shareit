@@ -20,15 +20,6 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler(SameEmailException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleSameEmailException(final SameEmailException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse(
-                "Same email error", e.getMessage()
-        );
-    }
-
     @ExceptionHandler(IncorrectObjectException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleIncorrectObjectException(final IncorrectObjectException e) {

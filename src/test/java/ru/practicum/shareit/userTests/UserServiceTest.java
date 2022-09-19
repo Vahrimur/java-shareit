@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 import ru.practicum.shareit.exception.IncorrectObjectException;
-import ru.practicum.shareit.exception.SameEmailException;
 import ru.practicum.shareit.user.*;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldCreateUserCorrect() throws SameEmailException, IncorrectFieldException {
+    void shouldCreateUserCorrect() throws IncorrectFieldException {
         Mockito
                 .when(userRepository.save(any()))
                 .thenReturn(userCorrect);
@@ -84,7 +83,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldUpdateUserCorrect() throws SameEmailException, IncorrectObjectException, IncorrectFieldException {
+    void shouldUpdateUserCorrect() throws IncorrectObjectException, IncorrectFieldException {
         Mockito
                 .when(userRepository.findAll())
                 .thenReturn(List.of(userCorrect));
@@ -109,7 +108,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldUpdateUserCorrectZeroFields() throws SameEmailException, IncorrectObjectException, IncorrectFieldException {
+    void shouldUpdateUserCorrectZeroFields() throws IncorrectObjectException, IncorrectFieldException {
         Mockito
                 .when(userRepository.findAll())
                 .thenReturn(List.of(userCorrect));
@@ -145,7 +144,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldUpdateUserNoExists() throws SameEmailException, IncorrectObjectException, IncorrectFieldException {
+    void shouldUpdateUserNoExists() {
         Mockito
                 .when(userRepository.findAll())
                 .thenReturn(new ArrayList<>());
@@ -161,7 +160,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldUpdateUserWrongEmail() throws SameEmailException, IncorrectObjectException, IncorrectFieldException {
+    void shouldUpdateUserWrongEmail() {
         Mockito
                 .when(userRepository.findAll())
                 .thenReturn(List.of(userWrongEmail));

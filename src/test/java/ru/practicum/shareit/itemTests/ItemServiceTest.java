@@ -15,6 +15,8 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 import ru.practicum.shareit.exception.IncorrectObjectException;
 import ru.practicum.shareit.item.CommentRepository;
@@ -33,6 +35,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 
@@ -104,6 +107,7 @@ public class ItemServiceTest {
             booker,
             BookingStatus.WAITING
     );
+    private final BookingDto bookingDto = BookingMapper.mapToBookingDto(booking);
     private final List<Comment> commentsEntity = List.of(new Comment(
             2L,
             "Add comment from user2",
@@ -270,7 +274,71 @@ public class ItemServiceTest {
     }
 
     @Test
-    void shouldGetItemById() throws IncorrectObjectException, IncorrectFieldException {
+    void shouldGetItemByIdByOwner() throws IncorrectObjectException, IncorrectFieldException {
+        Mockito
+                .when(itemRepository.findAll())
+                .thenReturn(List.of(itemForGet));
+        Mockito
+                .when(itemRepository.getReferenceById(2L))
+                .thenReturn(itemForGet);
+        Mockito
+                .lenient()
+                .when(bookingRepository.findAllByItemIdAndEndBeforeNow(anyLong(), any()))
+                .thenReturn(List.of(booking));
+        Mockito
+                .lenient()
+                .when(bookingRepository.findAllByItemIdAndStartAfterNow(anyLong(), any()))
+                .thenReturn(new ArrayList<>());
+        Mockito
+                .when(commentRepository.findAllByItemId(2L))
+                .thenReturn(commentsEntity);
+        Mockito
+                .when(itemRepository.getById(2L))
+                .thenReturn(itemForGet);
+
+        ItemDtoForGet itemDtoGot = itemService.getItemById(2L, 1L);
+
+        Assertions.assertEquals(itemDtoForGet.getId(), itemDtoGot.getId());
+        Assertions.assertEquals(itemDtoForGet.getName(), itemDtoGot.getName());
+        Assertions.assertEquals(itemDtoForGet.getDescription(), itemDtoGot.getDescription());
+        Assertions.assertEquals(itemDtoForGet.getAvailable(), itemDtoGot.getAvailable());
+        Assertions.assertEquals(bookingDto, itemDtoGot.getLastBooking());
+        Assertions.assertEquals(itemDtoForGet.getNextBooking(), itemDtoGot.getNextBooking());
+        Assertions.assertEquals(itemDtoForGet.getComments(), itemDtoGot.getComments());
+        Assertions.assertEquals(itemDtoForGet.getRequestId(), itemDtoGot.getRequestId());
+
+        Mockito
+                .verify(itemRepository, Mockito.times(2))
+                .findAll();
+        Mockito
+                .verify(itemRepository, Mockito.times(1))
+                .getReferenceById(2L);
+        Mockito
+                .verify(bookingRepository, Mockito.times(1))
+                .findAllByItemIdAndEndBeforeNow(anyLong(), any());
+        Mockito
+                .verify(bookingRepository, Mockito.times(1))
+                .findAllByItemIdAndStartAfterNow(anyLong(), any());
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
+        Mockito
+                .verify(commentRepository, Mockito.times(1))
+                .findAllByItemId(2L);
+        Mockito
+                .verify(itemRepository, Mockito.times(1))
+                .getById(2L);
+        Mockito
+                .verifyNoMoreInteractions(itemRepository,
+                        bookingRepository,
+                        commentRepository,
+                        userService,
+                        bookingService
+                );
+    }
+
+    @Test
+    void shouldGetItemByIdByBooker() throws IncorrectObjectException, IncorrectFieldException {
         Mockito
                 .when(itemRepository.findAll())
                 .thenReturn(List.of(itemForGet));
@@ -294,14 +362,14 @@ public class ItemServiceTest {
                 .when(itemRepository.getById(2L))
                 .thenReturn(itemForGet);
 
-        ItemDtoForGet itemDtoGot = itemService.getItemById(2L, 1L);
+        ItemDtoForGet itemDtoGot = itemService.getItemById(2L, 2L);
 
         Assertions.assertEquals(itemDtoForGet.getId(), itemDtoGot.getId());
         Assertions.assertEquals(itemDtoForGet.getName(), itemDtoGot.getName());
         Assertions.assertEquals(itemDtoForGet.getDescription(), itemDtoGot.getDescription());
         Assertions.assertEquals(itemDtoForGet.getAvailable(), itemDtoGot.getAvailable());
-        Assertions.assertEquals(itemDtoForGet.getLastBooking(), itemDtoGot.getLastBooking());
-        Assertions.assertEquals(itemDtoForGet.getNextBooking(), itemDtoGot.getNextBooking());
+        Assertions.assertNull(itemDtoGot.getLastBooking());
+        Assertions.assertNull(itemDtoGot.getNextBooking());
         Assertions.assertEquals(itemDtoForGet.getComments(), itemDtoGot.getComments());
         Assertions.assertEquals(itemDtoForGet.getRequestId(), itemDtoGot.getRequestId());
 
@@ -312,18 +380,8 @@ public class ItemServiceTest {
                 .verify(itemRepository, Mockito.times(1))
                 .getReferenceById(2L);
         Mockito
-                .verify(bookingRepository, Mockito.times(1))
-                .findAllByItemIdAndEndBeforeNow(2L,
-                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-                );
-        Mockito
-                .verify(bookingRepository, Mockito.times(1))
-                .findAllByItemIdAndStartAfterNow(2L,
-                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-                );
-        Mockito
                 .verify(userService, Mockito.times(1))
-                .checkUserExist(1L);
+                .checkUserExist(2L);
         Mockito
                 .verify(commentRepository, Mockito.times(1))
                 .findAllByItemId(2L);
@@ -346,13 +404,11 @@ public class ItemServiceTest {
                 .thenReturn(List.of(itemForGet));
         Mockito
                 .lenient()
-                .when(bookingRepository.findAllByItemIdAndEndBeforeNow(2L,
-                        LocalDateTime.now()))
+                .when(bookingRepository.findAllByItemIdAndEndBeforeNow(anyLong(), any()))
                 .thenReturn(List.of(booking));
         Mockito
                 .lenient()
-                .when(bookingRepository.findAllByItemIdAndStartAfterNow(2L,
-                        LocalDateTime.now()))
+                .when(bookingRepository.findAllByItemIdAndStartAfterNow(anyLong(), any()))
                 .thenReturn(new ArrayList<>());
         Mockito
                 .when(commentRepository.findAllByItemId(2L))
@@ -364,7 +420,7 @@ public class ItemServiceTest {
         Assertions.assertEquals(itemDtoForGet.getName(), items.get(0).getName());
         Assertions.assertEquals(itemDtoForGet.getDescription(), items.get(0).getDescription());
         Assertions.assertEquals(itemDtoForGet.getAvailable(), items.get(0).getAvailable());
-        Assertions.assertEquals(itemDtoForGet.getLastBooking(), items.get(0).getLastBooking());
+        Assertions.assertEquals(bookingDto, items.get(0).getLastBooking());
         Assertions.assertEquals(itemDtoForGet.getNextBooking(), items.get(0).getNextBooking());
         Assertions.assertEquals(itemDtoForGet.getComments(), items.get(0).getComments());
         Assertions.assertEquals(itemDtoForGet.getRequestId(), items.get(0).getRequestId());
@@ -374,17 +430,35 @@ public class ItemServiceTest {
                 .findAllByOwnerId(1L);
         Mockito
                 .verify(bookingRepository, Mockito.times(1))
-                .findAllByItemIdAndEndBeforeNow(2L,
-                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-                );
+                .findAllByItemIdAndEndBeforeNow(anyLong(), any());
         Mockito
                 .verify(bookingRepository, Mockito.times(1))
-                .findAllByItemIdAndStartAfterNow(2L,
-                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-                );
+                .findAllByItemIdAndStartAfterNow(anyLong(), any());
         Mockito
                 .verify(commentRepository, Mockito.times(1))
                 .findAllByItemId(2L);
+        Mockito
+                .verifyNoMoreInteractions(itemRepository,
+                        bookingRepository,
+                        commentRepository,
+                        userService,
+                        bookingService
+                );
+    }
+
+    @Test
+    void shouldGetAllItemsByUserIdEmpty() {
+        Mockito
+                .when(itemRepository.findAllByOwnerId(1L))
+                .thenReturn(new ArrayList<>());
+
+        List<ItemDtoForGet> items = itemService.getAllItemsByUserId(1L);
+
+        Assertions.assertEquals(0, items.size());
+
+        Mockito
+                .verify(itemRepository, Mockito.times(1))
+                .findAllByOwnerId(1L);
         Mockito
                 .verifyNoMoreInteractions(itemRepository,
                         bookingRepository,
@@ -529,6 +603,31 @@ public class ItemServiceTest {
     }
 
     @Test
+    void shouldGetAllItemsByUserIdByPagesEmpty() throws IncorrectObjectException {
+        Mockito
+                .when(itemRepository.findAllByOwnerIdByPages(anyLong(), any()))
+                .thenReturn(new ArrayList<>());
+
+        List<ItemDtoForGet> items = itemService.getAllItemsByUserIdByPages(2L, 1, 2);
+
+        Assertions.assertEquals(0, items.size());
+
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(2L);
+        Mockito
+                .verify(itemRepository, Mockito.times(1))
+                .findAllByOwnerIdByPages(anyLong(), any());
+        Mockito
+                .verifyNoMoreInteractions(itemRepository,
+                        bookingRepository,
+                        commentRepository,
+                        userService,
+                        bookingService
+                );
+    }
+
+    @Test
     void shouldSearchItemsByTextByPages() {
         Mockito
                 .when(itemRepository.searchByTextByPages(anyString(), any()))
@@ -612,17 +711,22 @@ public class ItemServiceTest {
 
     @Test
     void shouldCheckItemExistFails() throws IncorrectObjectException, IncorrectFieldException {
+        final IncorrectObjectException exception1 = Assertions.assertThrows(
+                IncorrectObjectException.class,
+                () -> itemService.checkItemExist(10L));
+        Assertions.assertEquals("There is no item with such ID", exception1.getMessage());
+
         Mockito
                 .when(itemRepository.findAll())
                 .thenReturn(List.of(item));
 
-        final IncorrectObjectException exception = Assertions.assertThrows(
+        final IncorrectObjectException exception2 = Assertions.assertThrows(
                 IncorrectObjectException.class,
                 () -> itemService.checkItemExist(10L));
-        Assertions.assertEquals("There is no item with such ID", exception.getMessage());
+        Assertions.assertEquals("There is no item with such ID", exception2.getMessage());
 
         Mockito
-                .verify(itemRepository, Mockito.times(2))
+                .verify(itemRepository, Mockito.times(3))
                 .findAll();
     }
 
@@ -677,6 +781,18 @@ public class ItemServiceTest {
 
     @Test
     void shouldCheckItemAvailable() {
+        item.setAvailable(false);
+        Mockito
+                .when(itemRepository.findById(1L))
+                .thenReturn(Optional.of(item));
 
+        final IncorrectFieldException exception = Assertions.assertThrows(
+                IncorrectFieldException.class,
+                () -> itemService.checkItemAvailable(1L));
+        Assertions.assertEquals("The item is not available for booking", exception.getMessage());
+
+        Mockito
+                .verify(itemRepository, Mockito.times(1))
+                .findById(1L);
     }
 }

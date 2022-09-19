@@ -1,16 +1,15 @@
 package ru.practicum.shareit.user;
 
 import ru.practicum.shareit.exception.IncorrectObjectException;
-import ru.practicum.shareit.exception.SameEmailException;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 
 import java.util.List;
 
 public interface UserService {
-    UserDto createUser(UserDto userDto) throws IncorrectFieldException, SameEmailException;
+    UserDto createUser(UserDto userDto) throws IncorrectFieldException;
 
     UserDto updateUser(UserDto userDto, Long userId)
-            throws IncorrectFieldException, SameEmailException, IncorrectObjectException;
+            throws IncorrectFieldException, IncorrectObjectException;
 
     void deleteUser(Long userId) throws IncorrectObjectException;
 

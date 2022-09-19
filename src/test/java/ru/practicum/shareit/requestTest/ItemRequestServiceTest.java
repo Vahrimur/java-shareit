@@ -31,6 +31,7 @@ import ru.practicum.shareit.user.*;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -156,6 +157,30 @@ public class ItemRequestServiceTest {
     }
 
     @Test
+    void shouldGetAllItemRequestsByRequesterIdEmpty() throws IncorrectObjectException {
+        Mockito
+                .when(itemRequestRepository.findAllByRequesterId(1L))
+                .thenReturn(new ArrayList<>());
+
+        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequestsByRequesterId(1L);
+
+        Assertions.assertEquals(0, requests.size());
+
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
+        Mockito
+                .verify(itemRequestRepository, Mockito.times(1))
+                .findAllByRequesterId(1L);
+        Mockito
+                .verifyNoMoreInteractions(
+                        itemRequestRepository,
+                        userService,
+                        itemRepository
+                );
+    }
+
+    @Test
     void shouldGetAllItemRequests() throws IncorrectObjectException {
         Mockito
                 .when(itemRequestRepository.findAll(1L))
@@ -180,6 +205,30 @@ public class ItemRequestServiceTest {
         Mockito
                 .verify(itemRepository, Mockito.times(1))
                 .findAllByRequestId(1L);
+        Mockito
+                .verifyNoMoreInteractions(
+                        itemRequestRepository,
+                        userService,
+                        itemRepository
+                );
+    }
+
+    @Test
+    void shouldGetAllItemRequestsEmpty() throws IncorrectObjectException {
+        Mockito
+                .when(itemRequestRepository.findAll(1L))
+                .thenReturn(new ArrayList<>());
+
+        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequests(1L);
+
+        Assertions.assertEquals(0, requests.size());
+
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
+        Mockito
+                .verify(itemRequestRepository, Mockito.times(1))
+                .findAll(1L);
         Mockito
                 .verifyNoMoreInteractions(
                         itemRequestRepository,
@@ -216,6 +265,33 @@ public class ItemRequestServiceTest {
         Mockito
                 .verify(itemRepository, Mockito.times(1))
                 .findAllByRequestId(1L);
+        Mockito
+                .verifyNoMoreInteractions(
+                        itemRequestRepository,
+                        userService,
+                        itemRepository
+                );
+    }
+
+    @Test
+    void shouldGetAllItemRequestsByPagesEmpty() throws IncorrectObjectException {
+        Integer from = 1;
+        Integer size = 1;
+        Pageable sortedDesc = PageRequest.of((from / size), size, Sort.by("created").descending());
+        Mockito
+                .when(itemRequestRepository.findAllByPages(1L, sortedDesc))
+                .thenReturn(new ArrayList<>());
+
+        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequestsByPages(1L, from, size);
+
+        Assertions.assertEquals(0, requests.size());
+
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
+        Mockito
+                .verify(itemRequestRepository, Mockito.times(1))
+                .findAllByPages(1L, sortedDesc);
         Mockito
                 .verifyNoMoreInteractions(
                         itemRequestRepository,
@@ -273,6 +349,56 @@ public class ItemRequestServiceTest {
         Mockito
                 .verify(itemRepository, Mockito.times(1))
                 .findAllByRequestId(1L);
+        Mockito
+                .verifyNoMoreInteractions(
+                        itemRequestRepository,
+                        userService,
+                        itemRepository
+                );
+    }
+
+    @Test
+    void shouldGetItemRequestByIdFails1() throws IncorrectObjectException {
+        Mockito
+                .when(itemRequestRepository.findAll())
+                .thenReturn(List.of(itemRequest));
+
+        final IncorrectObjectException exception1 = Assertions.assertThrows(
+                IncorrectObjectException.class,
+                () -> itemRequestService.getItemRequestById(1L, 99L));
+        Assertions.assertEquals("There is no item request with such ID", exception1.getMessage());
+
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
+        Mockito
+                .verify(itemRequestRepository, Mockito.times(2))
+                .findAll();
+        Mockito
+                .verifyNoMoreInteractions(
+                        itemRequestRepository,
+                        userService,
+                        itemRepository
+                );
+    }
+
+    @Test
+    void shouldGetItemRequestByIdFails2() throws IncorrectObjectException {
+        Mockito
+                .when(itemRequestRepository.findAll())
+                .thenReturn(new ArrayList<>());
+
+        final IncorrectObjectException exception1 = Assertions.assertThrows(
+                IncorrectObjectException.class,
+                () -> itemRequestService.getItemRequestById(1L, 1L));
+        Assertions.assertEquals("There is no item request with such ID", exception1.getMessage());
+
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
+        Mockito
+                .verify(itemRequestRepository, Mockito.times(1))
+                .findAll();
         Mockito
                 .verifyNoMoreInteractions(
                         itemRequestRepository,

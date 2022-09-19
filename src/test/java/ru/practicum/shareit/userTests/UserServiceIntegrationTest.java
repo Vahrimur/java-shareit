@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
