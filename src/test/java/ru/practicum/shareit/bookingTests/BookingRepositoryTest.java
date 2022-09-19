@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -20,10 +21,9 @@ import ru.practicum.shareit.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DataJpaTest
 public class BookingRepositoryTest {
-    @Autowired
-    private TestEntityManager em;
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
@@ -89,7 +89,8 @@ public class BookingRepositoryTest {
 
     @Test
     void shouldFindAllByBookerIdCurrent() {
-        booking.setEnd(LocalDateTime.now().plusDays(1));
+        booking.setStart(LocalDateTime.now().minusDays(3));
+        booking.setEnd(LocalDateTime.now().plusDays(3));
         Booking testBooking = bookingRepository.findAllByBookerIdCurrent(2L, LocalDateTime.now()).get(0);
 
         Assertions.assertEquals(1, testBooking.getId());
@@ -103,7 +104,8 @@ public class BookingRepositoryTest {
     @Test
     void shouldFindAllByBookerIdCurrentByPages() {
         Pageable sorted = PageRequest.of((1 / 2), 2, Sort.by("start").descending());
-        booking.setEnd(LocalDateTime.now().plusDays(1));
+        booking.setStart(LocalDateTime.now().minusMinutes(1));
+        booking.setEnd(LocalDateTime.now().plusMinutes(1));
         Booking testBooking = bookingRepository.findAllByBookerIdCurrentByPages(
                 2L, LocalDateTime.now(), sorted).get(0);
 
@@ -271,7 +273,8 @@ public class BookingRepositoryTest {
     @Test
     void shouldFindAllByItemsCurrent() {
         List<Item> items = itemRepository.findAll();
-        booking.setEnd(LocalDateTime.now().plusDays(1));
+        booking.setStart(LocalDateTime.now().minusMinutes(1));
+        booking.setEnd(LocalDateTime.now().plusMinutes(1));
         Booking testBooking = bookingRepository.findAllByItemsCurrent(items, LocalDateTime.now()).get(0);
 
         Assertions.assertEquals(1, testBooking.getId());
@@ -357,6 +360,8 @@ public class BookingRepositoryTest {
 
     @Test
     void shouldFindAllByItemIdAndEndBeforeNow() {
+        booking.setStart(LocalDateTime.now().minusMinutes(2));
+        booking.setEnd(LocalDateTime.now().minusMinutes(1));
         Booking testBooking = bookingRepository.findAllByItemIdAndEndBeforeNow(1L, LocalDateTime.now()).get(0);
 
         Assertions.assertEquals(1, testBooking.getId());

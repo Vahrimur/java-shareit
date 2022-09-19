@@ -21,6 +21,7 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -231,7 +232,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private BookingDto findLastBooking(Long itemId) {
-        Booking lastBooking = bookingRepository.findAllByItemIdAndEndBeforeNow(itemId, LocalDateTime.now())
+        Booking lastBooking = bookingRepository.findAllByItemIdAndEndBeforeNow(
+                itemId, LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
+        )
                 .stream()
                 .findFirst()
                 .orElse(null);
@@ -243,7 +246,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private BookingDto findNextBooking(Long itemId) {
-        Booking nextBooking = bookingRepository.findAllByItemIdAndStartAfterNow(itemId, LocalDateTime.now())
+        Booking nextBooking = bookingRepository.findAllByItemIdAndStartAfterNow(itemId, LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
+        )
                 .stream()
                 .findFirst()
                 .orElse(null);

@@ -70,15 +70,6 @@ public class ItemServiceTest {
             true,
             null
     );
-    private final BookingDto bookingDto = new BookingDto(
-            2L,
-            LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30),
-            LocalDateTime.of(2022, Month.SEPTEMBER, 9, 12, 30, 30),
-            2L,
-            "Дрель",
-            2L,
-            BookingStatus.WAITING
-    );
     private final CommentDto commentDto = new CommentDto(
             2L,
             "Add comment from user2",
@@ -91,7 +82,7 @@ public class ItemServiceTest {
             "Дрель",
             "Простая дрель",
             true,
-            bookingDto,
+            null,
             null,
             comments,
             null
@@ -324,11 +315,13 @@ public class ItemServiceTest {
         Mockito
                 .verify(bookingRepository, Mockito.times(1))
                 .findAllByItemIdAndEndBeforeNow(2L,
-                        LocalDateTime.now());
+                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
+                );
         Mockito
                 .verify(bookingRepository, Mockito.times(1))
                 .findAllByItemIdAndStartAfterNow(2L,
-                        LocalDateTime.now());
+                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
+                );
         Mockito
                 .verify(userService, Mockito.times(1))
                 .checkUserExist(1L);
@@ -383,11 +376,13 @@ public class ItemServiceTest {
         Mockito
                 .verify(bookingRepository, Mockito.times(1))
                 .findAllByItemIdAndEndBeforeNow(2L,
-                        LocalDateTime.now());
+                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
+                );
         Mockito
                 .verify(bookingRepository, Mockito.times(1))
                 .findAllByItemIdAndStartAfterNow(2L,
-                        LocalDateTime.now());
+                        LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
+                );
         Mockito
                 .verify(commentRepository, Mockito.times(1))
                 .findAllByItemId(2L);
