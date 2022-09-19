@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -401,12 +402,14 @@ public class BookingServiceTest {
     void shouldGetAllBookingsByOwnerIdCurrent() throws IncorrectObjectException, IncorrectEnumException {
         LocalDateTime start = LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30);
         booking.setStart(start);
+        LocalDateTime end = LocalDateTime.of(2022, Month.NOVEMBER, 8, 12, 30, 30);
+        booking.setEnd(end);
 
         Mockito
                 .when(itemRepository.findAllByOwnerId(1L))
                 .thenReturn(List.of(item));
         Mockito
-                .when(bookingRepository.findAllByItemsCurrent(List.of(item), LocalDateTime.now()))
+                .when(bookingRepository.findAllByItemsCurrent(any(), any()))
                 .thenReturn(List.of(booking));
 
         List<BookingDtoForUpdateAndGet> bookings = bookingService
@@ -414,7 +417,7 @@ public class BookingServiceTest {
 
         Assertions.assertEquals(bookingDtoForUpdateAndGet.getId(), bookings.get(0).getId());
         Assertions.assertEquals(start, bookings.get(0).getStart());
-        Assertions.assertEquals(bookingDtoForUpdateAndGet.getEnd(), bookings.get(0).getEnd());
+        Assertions.assertEquals(end, bookings.get(0).getEnd());
         Assertions.assertEquals(bookingDtoForUpdateAndGet.getItem(), bookings.get(0).getItem());
         Assertions.assertEquals(bookingDtoForUpdateAndGet.getBooker(), bookings.get(0).getBooker());
         Assertions.assertEquals(bookingDtoForUpdateAndGet.getStatus(), bookings.get(0).getStatus());
@@ -424,7 +427,7 @@ public class BookingServiceTest {
         Mockito.verify(itemRepository, Mockito.times(1))
                 .findAllByOwnerId(1L);
         Mockito.verify(bookingRepository, Mockito.times(1))
-                .findAllByItemsCurrent(List.of(item), LocalDateTime.now());
+                .findAllByItemsCurrent(anyList(), any());
         Mockito.verifyNoMoreInteractions(
                 bookingRepository,
                 itemRepository,
