@@ -15,7 +15,6 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 import ru.practicum.shareit.exception.IncorrectObjectException;
 import ru.practicum.shareit.item.CommentRepository;
