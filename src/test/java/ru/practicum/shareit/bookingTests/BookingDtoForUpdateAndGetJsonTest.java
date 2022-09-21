@@ -41,8 +41,8 @@ public class BookingDtoForUpdateAndGetJsonTest {
         assertThat(result).hasJsonPath("$.booker");
         assertThat(result).hasJsonPath("$.status");
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(bookingDto.getId().intValue());
-        assertThat(result).extractingJsonPathStringValue("$.start").
-                isEqualTo(bookingDto.getStart().toString());
+        assertThat(result).extractingJsonPathStringValue("$.start")
+                .isEqualTo(bookingDto.getStart().toString());
         assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(bookingDto.getEnd().toString());
         assertThat(result).extractingJsonPathNumberValue("$.item.id")
                 .isEqualTo(bookingDto.getItem().getId().intValue());

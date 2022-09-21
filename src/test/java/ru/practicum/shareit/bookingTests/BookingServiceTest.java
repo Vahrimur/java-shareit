@@ -305,7 +305,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    void shouldChangeBookingStatusSameStatus() throws Exception{
+    void shouldChangeBookingStatusSameStatus() throws Exception {
         booking.setStatus(BookingStatus.APPROVED);
 
         Mockito
