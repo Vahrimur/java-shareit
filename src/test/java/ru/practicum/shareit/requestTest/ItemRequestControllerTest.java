@@ -26,8 +26,6 @@ import ru.practicum.shareit.request.dto.ItemRequestForGetDto;
 import ru.practicum.shareit.request.dto.ItemRequestForGetMapper;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -47,37 +45,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ItemRequestControllerTest {
 
     private final ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
     @MockBean
     private final ItemRequestService itemRequestService;
-
     @Autowired
     private MockMvc mvc;
 
     private final User requester = new User(1L, "user", "user@user.com");
-    private final UserDto requesterDto = UserMapper.mapToUserDto(requester);
-
     private final User requester2 = new User(2L, "user2", "user2@user.com");
-    private final UserDto requester2Dto = UserMapper.mapToUserDto(requester2);
-    private final ItemRequest itemRequest = new ItemRequest(
-            1L,
-            "Хотел бы воспользоваться дрелью",
-            requester,
-            LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-    );
+    private final ItemRequest itemRequest = new ItemRequest(1L, "Хотел бы воспользоваться дрелью",
+            requester, LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30));
     private final ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(itemRequest);
     private final Item item = new Item(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            2L,
-            1L);
+            1L, "Дрель", "Простая дрель", true, 2L, 1L);
     private final ItemDto itemDto = ItemMapper.mapToItemDto(item);
     private final ItemRequestForGetDto itemRequestForGetDto = ItemRequestForGetMapper.mapToItemRequestForGetDto(
-            itemRequest,
-            List.of(itemDto)
-    );
+            itemRequest, List.of(itemDto));
 
     @Autowired
     public ItemRequestControllerTest(ItemRequestService itemRequestService) {
@@ -109,7 +91,10 @@ public class ItemRequestControllerTest {
 
         Mockito.verify(itemRequestService, Mockito.times(1))
                 .addNewItemRequest(1L, itemRequestDto);
+    }
 
+    @Test
+    void shouldCreateRequesterNotFound() throws Exception {
         when(itemRequestService.addNewItemRequest(2L, itemRequestDto))
                 .thenThrow(IncorrectObjectException.class);
 
@@ -144,7 +129,10 @@ public class ItemRequestControllerTest {
 
         Mockito.verify(itemRequestService, Mockito.times(1))
                 .getAllItemRequestsByRequesterId(1L);
+    }
 
+    @Test
+    void shouldFindAllByRequesterNotFound() throws Exception {
         when(itemRequestService.getAllItemRequestsByRequesterId(2L))
                 .thenThrow(IncorrectObjectException.class);
 
@@ -159,7 +147,7 @@ public class ItemRequestControllerTest {
 
     @Test
     void shouldFindAll() throws Exception {
-        when(itemRequestService.getAllItemRequests(2L))
+        when(itemRequestService.getAllItemRequests(2L, null, null))
                 .thenReturn(List.of(itemRequestForGetDto));
 
         mvc.perform(get("/requests/all")
@@ -178,9 +166,12 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].items[0].requestId", is(itemDto.getRequestId().intValue())));
 
         Mockito.verify(itemRequestService, Mockito.times(1))
-                .getAllItemRequests(2L);
+                .getAllItemRequests(2L, null, null);
+    }
 
-        when(itemRequestService.getAllItemRequestsByPages(2L, 1, 1))
+    @Test
+    void shouldFindAllByPages() throws Exception {
+        when(itemRequestService.getAllItemRequests(2L, 1, 1))
                 .thenReturn(List.of(itemRequestForGetDto));
 
         mvc.perform(get("/requests/all?from=1&size=1")
@@ -199,7 +190,7 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].items[0].requestId", is(itemDto.getRequestId().intValue())));
 
         Mockito.verify(itemRequestService, Mockito.times(1))
-                .getAllItemRequestsByPages(2L, 1, 1);
+                .getAllItemRequests(2L, 1, 1);
     }
 
     @Test

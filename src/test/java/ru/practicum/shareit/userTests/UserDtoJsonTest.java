@@ -16,11 +16,7 @@ public class UserDtoJsonTest {
 
     @Test
     void testUserDto() throws Exception {
-        UserDto userDto = new UserDto(
-                1L,
-                "user",
-                "user@user.com"
-        );
+        UserDto userDto = new UserDto(1L, "user", "user@user.com");
 
         JsonContent<UserDto> result = json.write(userDto);
 

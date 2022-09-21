@@ -20,15 +20,10 @@ public class BookingDtoJsonTest {
 
     @Test
     void testBookingDto() throws Exception {
-        BookingDto bookingDto = new BookingDto(
-                1L,
+        BookingDto bookingDto = new BookingDto(1L,
                 LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30),
                 LocalDateTime.of(2022, Month.SEPTEMBER, 9, 12, 30, 30),
-                2L,
-                "Отвертка",
-                1L,
-                BookingStatus.WAITING
-        );
+                2L, "Отвертка", 1L, BookingStatus.WAITING);
 
         JsonContent<BookingDto> result = json.write(bookingDto);
 

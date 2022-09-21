@@ -41,43 +41,24 @@ import static org.mockito.ArgumentMatchers.*;
 public class ItemRequestServiceTest {
     @Mock
     ItemRequestRepository itemRequestRepository;
-
     @Mock
     UserService userService;
-
     @Mock
     ItemRepository itemRepository;
-
     private ItemRequestService itemRequestService;
-
     private MockitoSession session;
 
     private final User requester = new User(1L, "user", "user@user.com");
     private final UserDto requesterDto = UserMapper.mapToUserDto(requester);
-
-    private final ItemRequest itemRequest = new ItemRequest(
-            1L,
-            "Хотел бы воспользоваться дрелью",
-            requester,
-            LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-    );
+    private final ItemRequest itemRequest = new ItemRequest(1L, "Хотел бы воспользоваться дрелью",
+            requester, LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30));
 
     private final ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(itemRequest);
-
     private final Item item = new Item(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            2L,
-            1L);
-
+            1L, "Дрель", "Простая дрель", true, 2L, 1L);
     private final ItemDto itemDto = ItemMapper.mapToItemDto(item);
-
     private final ItemRequestForGetDto itemRequestForGetDto = ItemRequestForGetMapper.mapToItemRequestForGetDto(
-            itemRequest,
-            List.of(itemDto)
-    );
+            itemRequest, List.of(itemDto));
 
     @BeforeEach
     void init() {
@@ -189,7 +170,7 @@ public class ItemRequestServiceTest {
                 .when(itemRepository.findAllByRequestId(1L))
                 .thenReturn(List.of(item));
 
-        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequests(1L);
+        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequests(1L, null, null);
 
         Assertions.assertEquals(itemRequestForGetDto.getId(), requests.get(0).getId());
         Assertions.assertEquals(itemRequestForGetDto.getDescription(), requests.get(0).getDescription());
@@ -219,7 +200,7 @@ public class ItemRequestServiceTest {
                 .when(itemRequestRepository.findAll(1L))
                 .thenReturn(new ArrayList<>());
 
-        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequests(1L);
+        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequests(1L, null, null);
 
         Assertions.assertEquals(0, requests.size());
 
@@ -249,7 +230,7 @@ public class ItemRequestServiceTest {
                 .when(itemRepository.findAllByRequestId(1L))
                 .thenReturn(List.of(item));
 
-        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequestsByPages(1L, from, size);
+        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequests(1L, from, size);
 
         Assertions.assertEquals(itemRequestForGetDto.getId(), requests.get(0).getId());
         Assertions.assertEquals(itemRequestForGetDto.getDescription(), requests.get(0).getDescription());
@@ -282,7 +263,7 @@ public class ItemRequestServiceTest {
                 .when(itemRequestRepository.findAllByPages(1L, sortedDesc))
                 .thenReturn(new ArrayList<>());
 
-        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequestsByPages(1L, from, size);
+        List<ItemRequestForGetDto> requests = itemRequestService.getAllItemRequests(1L, from, size);
 
         Assertions.assertEquals(0, requests.size());
 
@@ -304,7 +285,7 @@ public class ItemRequestServiceTest {
     void shouldCheckPageableParamsFails() {
         final IllegalArgumentException exception1 = Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> itemRequestService.getAllItemRequestsByPages(1L, -1, 1));
+                () -> itemRequestService.getAllItemRequests(1L, -1, 1));
 
         Mockito
                 .verify(itemRepository, Mockito.times(0))
@@ -313,7 +294,7 @@ public class ItemRequestServiceTest {
 
         final IllegalArgumentException exception2 = Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> itemRequestService.getAllItemRequestsByPages(1L, 1, 0));
+                () -> itemRequestService.getAllItemRequests(1L, 1, 0));
 
         Mockito
                 .verify(itemRepository, Mockito.times(0))

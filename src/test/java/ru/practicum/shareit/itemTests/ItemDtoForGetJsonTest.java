@@ -25,34 +25,17 @@ public class ItemDtoForGetJsonTest {
     @Test
     void testItemDtoForGet() throws Exception {
         List<CommentDto> comments = new ArrayList<>();
-        CommentDto commentDto = new CommentDto(
-                1L,
-                "Add comment from user1",
-                "updateName",
-                LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-        );
+        CommentDto commentDto = new CommentDto(1L, "Add comment from user1", "updateName",
+                LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30));
         comments.add(commentDto);
 
-        BookingDto bookingDto = new BookingDto(
-                1L,
+        BookingDto bookingDto = new BookingDto(1L,
                 LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30),
                 LocalDateTime.of(2022, Month.SEPTEMBER, 9, 12, 30, 30),
-                1L,
-                "Отвертка",
-                1L,
-                BookingStatus.WAITING
-        );
+                1L,"Отвертка",1L,BookingStatus.WAITING);
 
-        ItemDtoForGet itemDto = new ItemDtoForGet(
-                1L,
-                "Дрель",
-                "Простая дрель",
-                true,
-                bookingDto,
-                null,
-                comments,
-                null
-        );
+        ItemDtoForGet itemDto = new ItemDtoForGet(1L, "Дрель", "Простая дрель", true,
+                bookingDto, null, comments, null);
 
         JsonContent<ItemDtoForGet> result = json.write(itemDto);
 

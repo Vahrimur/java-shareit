@@ -38,31 +38,14 @@ public class ItemServiceIntegrationTest {
     private final UserService userService;
     private final BookingService bookingService;
     private final Item item = new Item(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            1L, "Дрель", "Простая дрель", true, 1L, null);
     private final ItemDto itemDto = ItemMapper.mapToItemDto(item);
     private final UserDto userDto = UserMapper.mapToUserDto(new User(null, "user", "user@user.com"));
     private final UserDto bookerDto = UserMapper.mapToUserDto(new User(null, "name2", "email@email.ru"));
-    private final BookingDto bookingDto = new BookingDto(
-            null,
-            LocalDateTime.now().plusSeconds(1),
-            LocalDateTime.now().plusSeconds(2),
-            1L,
-            null,
-            null,
-            null
-    );
-    private final CommentDto commentDto = new CommentDto(
-            null,
-            "Add comment from booker",
-            null,
-            null
-    );
+    private final BookingDto bookingDto = new BookingDto(null, LocalDateTime.now().plusSeconds(1),
+            LocalDateTime.now().plusSeconds(2), 1L, null, null, null);
+    private final CommentDto commentDto = new CommentDto(null, "Add comment from booker", null,
+            null);
 
     @Test
     void shouldAddNewItem() throws Exception {
@@ -117,7 +100,8 @@ public class ItemServiceIntegrationTest {
         TypedQuery<Item> query = em.createQuery("Select i from Item i", Item.class);
         List<Item> items = query.getResultList();
 
-        List<Item> testItems = ItemForGetMapper.mapToItemEntity(itemService.getAllItemsByUserId(1L), 1L);
+        List<Item> testItems = ItemForGetMapper.mapToItemEntity(
+                itemService.getAllItemsByUserId(1L, null, null), 1L);
 
         assertThat(testItems, equalTo(items));
     }
@@ -130,13 +114,14 @@ public class ItemServiceIntegrationTest {
         TypedQuery<Item> query = em.createQuery("Select i from Item i", Item.class);
         List<Item> items = query.getResultList();
 
-        List<Item> testItems = ItemMapper.mapToItemEntity(itemService.searchItemsByText("Дрель"), 1L);
+        List<Item> testItems = ItemMapper.mapToItemEntity(
+                itemService.searchItemsByText("Дрель", null, null), 1L);
 
         assertThat(testItems, equalTo(items));
     }
 
     @Test
-    void shouldAddNewComment() throws Exception {
+    void shouldAddNewCommentDbCheck() throws Exception {
         userService.createUser(userDto);
         userService.createUser(bookerDto);
         itemService.addNewItem(1L, itemDto);
@@ -150,9 +135,23 @@ public class ItemServiceIntegrationTest {
         assertThat(commentCreated.getId(), notNullValue());
         assertThat(commentCreated.getId(), equalTo(1L));
         assertThat(commentCreated.getText(), equalTo(commentDto.getText()));
+    }
+
+    @Test
+    void shouldAddNewCommentServiceCheck() throws Exception {
+        userService.createUser(userDto);
+        userService.createUser(bookerDto);
+        itemService.addNewItem(1L, itemDto);
+        bookingService.addNewBooking(2L, bookingDto);
+        TimeUnit.SECONDS.sleep(1);
+        itemService.addNewComment(2L, 1L, commentDto);
+
+        TypedQuery<Comment> query = em.createQuery("Select c from Comment c where c.text = :text", Comment.class);
+        Comment commentCreated = query.setParameter("text", commentDto.getText()).getSingleResult();
 
         User bookerCheck = UserMapper.mapToUserEntity(userService.getUserById(2L));
         Item itemCheck = ItemForGetMapper.mapToItemEntity(itemService.getItemById(1L, 1L), 1L);
+
         Comment commentCheck = CommentMapper.mapToCommentEntity(
                 itemService.getItemById(1L, 1L).getComments().get(0),
                 itemCheck,
@@ -170,7 +169,7 @@ public class ItemServiceIntegrationTest {
         List<Item> items = query.getResultList();
 
         List<Item> testItems = ItemForGetMapper.mapToItemEntity(
-                itemService.getAllItemsByUserIdByPages(1L, 1, 2), 1L);
+                itemService.getAllItemsByUserId(1L, 1, 2), 1L);
 
         assertThat(testItems, equalTo(items));
     }
@@ -184,7 +183,7 @@ public class ItemServiceIntegrationTest {
         List<Item> items = query.getResultList();
 
         List<Item> testItems = ItemMapper.mapToItemEntity(
-                itemService.searchItemsByTextByPages("Дрель", 1, 2), 1L);
+                itemService.searchItemsByText("Дрель", 1, 2), 1L);
 
         assertThat(testItems, equalTo(items));
     }

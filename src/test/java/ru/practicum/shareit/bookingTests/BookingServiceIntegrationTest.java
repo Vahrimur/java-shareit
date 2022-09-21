@@ -38,25 +38,12 @@ public class BookingServiceIntegrationTest {
     private final UserService userService;
     private final BookingService bookingService;
     private final Item item = new Item(
-            null,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            null, "Дрель", "Простая дрель", true, 1L, null);
     private final ItemDto itemDto = ItemMapper.mapToItemDto(item);
     private final UserDto userDto = UserMapper.mapToUserDto(new User(null, "user", "user@user.com"));
     private final UserDto bookerDto = UserMapper.mapToUserDto(new User(null, "name2", "email@email.ru"));
-    private final BookingDto bookingDto = new BookingDto(
-            null,
-            LocalDateTime.now().plusSeconds(1),
-            LocalDateTime.now().plusSeconds(2),
-            1L,
-            null,
-            null,
-            null
-    );
+    private final BookingDto bookingDto = new BookingDto(null, LocalDateTime.now().plusSeconds(1),
+            LocalDateTime.now().plusSeconds(2), 1L, null, null, null);
 
     @Test
     void shouldAddNewBooking() throws Exception {
@@ -135,7 +122,8 @@ public class BookingServiceIntegrationTest {
         List<Booking> bookings = query.getResultList();
 
         List<Booking> testBookings = BookingForUpdateAndGetMapper.mapToBookingEntity(
-                bookingService.getAllBookingsByBookerId(2L, State.WAITING.toString()), 1L);
+                bookingService.getAllBookingsByBookerId(
+                        2L, State.WAITING.toString(), null, null), 1L);
 
         assertThat(testBookings, equalTo(bookings));
     }
@@ -151,7 +139,7 @@ public class BookingServiceIntegrationTest {
         List<Booking> bookings = query.getResultList();
 
         List<Booking> testBookings = BookingForUpdateAndGetMapper.mapToBookingEntity(
-                bookingService.getAllBookingsByBookerIdByPages(
+                bookingService.getAllBookingsByBookerId(
                         2L, State.WAITING.toString(), 1, 2), 1L);
 
         assertThat(testBookings, equalTo(bookings));
@@ -168,7 +156,8 @@ public class BookingServiceIntegrationTest {
         List<Booking> bookings = query.getResultList();
 
         List<Booking> testBookings = BookingForUpdateAndGetMapper.mapToBookingEntity(
-                bookingService.getAllBookingsByOwnerId(1L, State.WAITING.toString()), 1L);
+                bookingService.getAllBookingsByOwnerId(
+                        1L, State.WAITING.toString(), null, null), 1L);
 
         assertThat(testBookings, equalTo(bookings));
     }
@@ -184,7 +173,7 @@ public class BookingServiceIntegrationTest {
         List<Booking> bookings = query.getResultList();
 
         List<Booking> testBookings = BookingForUpdateAndGetMapper.mapToBookingEntity(
-                bookingService.getAllBookingsByOwnerIdByPages(
+                bookingService.getAllBookingsByOwnerId(
                         1L, State.WAITING.toString(), 1, 2), 1L);
 
         assertThat(testBookings, equalTo(bookings));

@@ -46,24 +46,16 @@ public class ItemController {
     public List<ItemDtoForGet> findAll(@RequestHeader("X-Sharer-User-Id") Long userId,
                                        @RequestParam(required = false) Integer from,
                                        @RequestParam(required = false) Integer size) throws IncorrectObjectException {
-        if (from == null && size == null) {
-            log.info("GET /items by owner id={}", userId);
-            return itemService.getAllItemsByUserId(userId);
-        }
         log.info("GET /items by owner id={}, from {} size {}", userId, from, size);
-        return itemService.getAllItemsByUserIdByPages(userId, from, size);
+        return itemService.getAllItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchByText(@RequestParam String text,
                                       @RequestParam(required = false) Integer from,
                                       @RequestParam(required = false) Integer size) {
-        if (from == null && size == null) {
-            log.info("GET /items/search?text=" + text);
-            return itemService.searchItemsByText(text);
-        }
         log.info("GET /items/search?text={}&from={}&size={}", text, from, size);
-        return itemService.searchItemsByTextByPages(text, from, size);
+        return itemService.searchItemsByText(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

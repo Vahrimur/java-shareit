@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
@@ -20,30 +19,15 @@ import java.util.ArrayList;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemRepositoryTest {
     @Autowired
-    private TestEntityManager em;
-    @Autowired
     private ItemRepository itemRepository;
     @Autowired
     private UserRepository userRepository;
 
     private final Item item = new Item(
-            null,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            null, "Дрель", "Простая дрель", true, 1L, null);
     private final Item item2 = new Item(
-            null,
-            "Тарелка",
-            "Простая тарелка",
-            true,
-            1L,
-            null
-    );
+            null, "Тарелка", "Простая тарелка", true, 1L, null);
     private final User owner = new User(null, "user", "user@user.com");
-    private final User booker = new User(null, "name2", "email@email.ru");
 
     @BeforeEach
     void setUp() {

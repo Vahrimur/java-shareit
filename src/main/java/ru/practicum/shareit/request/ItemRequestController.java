@@ -39,12 +39,8 @@ public class ItemRequestController {
                                               @RequestParam(required = false) Integer from,
                                               @RequestParam(required = false) Integer size)
             throws IncorrectObjectException {
-        if (from == null && size == null) {
-            log.info("GET /requests by requester id={}", requesterId);
-            return itemRequestService.getAllItemRequests(requesterId);
-        }
         log.info("GET /requests by requester id={}, from {} size {}", requesterId, from, size);
-        return itemRequestService.getAllItemRequestsByPages(requesterId, from, size);
+        return itemRequestService.getAllItemRequests(requesterId, from, size);
     }
 
     @GetMapping("/{requestId}")

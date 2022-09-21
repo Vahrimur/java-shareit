@@ -49,33 +49,18 @@ public class BookingControllerTest {
     private MockMvc mvc;
 
     private final Item item = new Item(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            1L, "Дрель", "Простая дрель", true, 1L, null);
     private final ItemDto itemDto = ItemMapper.mapToItemDto(item);
     private final User booker = new User(2L, "name", "email@email.ru");
     private final UserDto bookerDto = UserMapper.mapToUserDto(booker);
-    private final BookingDto bookingDto = new BookingDto(
-            1L,
+    private final BookingDto bookingDto = new BookingDto(1L,
             LocalDateTime.of(2022, Month.OCTOBER, 8, 12, 30, 30),
             LocalDateTime.of(2022, Month.OCTOBER, 9, 12, 30, 30),
-            1L,
-            "Дрель",
-            2L,
-            BookingStatus.WAITING
-    );
-    private final BookingDtoForUpdateAndGet bookingDtoForUpdateAndGet = new BookingDtoForUpdateAndGet(
-            1L,
+            1L, "Дрель", 2L, BookingStatus.WAITING);
+    private final BookingDtoForUpdateAndGet bookingDtoForUpdateAndGet = new BookingDtoForUpdateAndGet(1L,
             LocalDateTime.of(2022, Month.OCTOBER, 8, 12, 30, 30),
             LocalDateTime.of(2022, Month.OCTOBER, 9, 12, 30, 30),
-            itemDto,
-            bookerDto,
-            BookingStatus.WAITING
-    );
+            itemDto, bookerDto, BookingStatus.WAITING);
 
     @Autowired
     public BookingControllerTest(BookingService bookingService) {
@@ -183,7 +168,7 @@ public class BookingControllerTest {
 
     @Test
     void shouldFindAllByBooker() throws Exception {
-        when(bookingService.getAllBookingsByBookerId(2L, State.ALL.toString()))
+        when(bookingService.getAllBookingsByBookerId(2L, State.ALL.toString(), null, null))
                 .thenReturn(List.of(bookingDtoForUpdateAndGet));
 
         mvc.perform(get("/bookings?state=ALL")
@@ -213,9 +198,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].status", is(bookingDtoForUpdateAndGet.getStatus().toString())));
 
         Mockito.verify(bookingService, Mockito.times(1))
-                .getAllBookingsByBookerId(2L, State.ALL.toString());
+                .getAllBookingsByBookerId(2L, State.ALL.toString(), null, null);
+    }
 
-        when(bookingService.getAllBookingsByBookerIdByPages(2L, State.ALL.toString(), 1, 1))
+    @Test
+    void shouldFindAllByBookerByPages() throws Exception {
+        when(bookingService.getAllBookingsByBookerId(2L, State.ALL.toString(), 1, 1))
                 .thenReturn(List.of(bookingDtoForUpdateAndGet));
 
         mvc.perform(get("/bookings?state=ALL&from=1&size=1")
@@ -245,12 +233,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].status", is(bookingDtoForUpdateAndGet.getStatus().toString())));
 
         Mockito.verify(bookingService, Mockito.times(1))
-                .getAllBookingsByBookerIdByPages(2L, State.ALL.toString(), 1, 1);
+                .getAllBookingsByBookerId(2L, State.ALL.toString(), 1, 1);
     }
 
     @Test
     void shouldFindAllByOwner() throws Exception {
-        when(bookingService.getAllBookingsByOwnerId(1L, State.ALL.toString()))
+        when(bookingService.getAllBookingsByOwnerId(1L, State.ALL.toString(), null, null))
                 .thenReturn(List.of(bookingDtoForUpdateAndGet));
 
         mvc.perform(get("/bookings/owner?state=ALL")
@@ -280,9 +268,12 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].status", is(bookingDtoForUpdateAndGet.getStatus().toString())));
 
         Mockito.verify(bookingService, Mockito.times(1))
-                .getAllBookingsByOwnerId(1L, State.ALL.toString());
+                .getAllBookingsByOwnerId(1L, State.ALL.toString(), null, null);
+    }
 
-        when(bookingService.getAllBookingsByOwnerIdByPages(1L, State.ALL.toString(), 1, 1))
+    @Test
+    void shouldFindAllByOwnerByPages() throws Exception {
+        when(bookingService.getAllBookingsByOwnerId(1L, State.ALL.toString(), 1, 1))
                 .thenReturn(List.of(bookingDtoForUpdateAndGet));
 
         mvc.perform(get("/bookings/owner?state=ALL&from=1&size=1")
@@ -312,6 +303,6 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].status", is(bookingDtoForUpdateAndGet.getStatus().toString())));
 
         Mockito.verify(bookingService, Mockito.times(1))
-                .getAllBookingsByOwnerIdByPages(1L, State.ALL.toString(), 1, 1);
+                .getAllBookingsByOwnerId(1L, State.ALL.toString(), 1, 1);
     }
 }

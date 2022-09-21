@@ -19,11 +19,8 @@ public class ItemRequestDtoJsonTest {
 
     @Test
     void testItemRequestDto() throws Exception {
-        ItemRequestDto itemRequestDto = new ItemRequestDto(
-                1L,
-                "Хотел бы воспользоваться щёткой для обуви",
-                LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-        );
+        ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "Хотел бы воспользоваться щёткой для обуви",
+                LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30));
 
         JsonContent<ItemRequestDto> result = json.write(itemRequestDto);
 

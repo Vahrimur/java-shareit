@@ -43,78 +43,39 @@ import static org.mockito.ArgumentMatchers.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemServiceTest {
     @Mock
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Mock
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
     @Mock
-    UserService userService;
+    private UserService userService;
     @Lazy
     @Mock
-    BookingService bookingService;
-    ItemService itemService;
-
+    private BookingService bookingService;
+    private ItemService itemService;
     private MockitoSession session;
 
     private final Item item = new Item(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            1L, "Дрель", "Простая дрель", true, 1L, null);
     private final ItemDto itemDto = new ItemDto(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            null
-    );
-    private final CommentDto commentDto = new CommentDto(
-            2L,
-            "Add comment from user2",
-            "name",
-            LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-    );
+            1L, "Дрель", "Простая дрель", true, null);
+    private final CommentDto commentDto = new CommentDto(2L, "Add comment from user2", "name",
+            LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30));
     private final List<CommentDto> comments = List.of(commentDto);
-    private final ItemDtoForGet itemDtoForGet = new ItemDtoForGet(
-            2L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            null,
-            null,
-            comments,
-            null
-    );
+    private final ItemDtoForGet itemDtoForGet = new ItemDtoForGet(2L, "Дрель", "Простая дрель",
+            true, null, null, comments, null);
     private final Item itemForGet = new Item(
-            2L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            2L, "Дрель", "Простая дрель", true, 1L, null);
     private final User booker = new User(2L, "name", "email@email.ru");
     private final UserDto bookerDto = UserMapper.mapToUserDto(booker);
-    private final Booking booking = new Booking(
-            2L,
+    private final Booking booking = new Booking(2L,
             LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30),
             LocalDateTime.of(2022, Month.SEPTEMBER, 9, 12, 30, 30),
-            itemForGet,
-            booker,
-            BookingStatus.WAITING
-    );
+            itemForGet, booker, BookingStatus.WAITING);
     private final BookingDto bookingDto = BookingMapper.mapToBookingDto(booking);
-    private final List<Comment> commentsEntity = List.of(new Comment(
-            2L,
-            "Add comment from user2",
-            itemForGet,
-            booker,
-            LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)
-    ));
+    private final List<Comment> commentsEntity = List.of(new Comment(2L, "Add comment from user2", itemForGet,
+            booker, LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30)));
     private final Comment comment = CommentMapper.mapToCommentEntity(commentDto, itemForGet, booker);
 
     @BeforeEach
@@ -161,7 +122,10 @@ public class ItemServiceTest {
                         userService,
                         bookingService
                 );
+    }
 
+    @Test
+    void shouldAddNewItemFails() {
         itemDto.setAvailable(false);
         final IncorrectFieldException exception1 = Assertions.assertThrows(
                 IncorrectFieldException.class,
@@ -398,7 +362,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    void shouldGetAllItemsByUserId() {
+    void shouldGetAllItemsByUserId() throws IncorrectObjectException {
         Mockito
                 .when(itemRepository.findAllByOwnerId(1L))
                 .thenReturn(List.of(itemForGet));
@@ -414,7 +378,7 @@ public class ItemServiceTest {
                 .when(commentRepository.findAllByItemId(2L))
                 .thenReturn(commentsEntity);
 
-        List<ItemDtoForGet> items = itemService.getAllItemsByUserId(1L);
+        List<ItemDtoForGet> items = itemService.getAllItemsByUserId(1L, null, null);
 
         Assertions.assertEquals(itemDtoForGet.getId(), items.get(0).getId());
         Assertions.assertEquals(itemDtoForGet.getName(), items.get(0).getName());
@@ -425,6 +389,9 @@ public class ItemServiceTest {
         Assertions.assertEquals(itemDtoForGet.getComments(), items.get(0).getComments());
         Assertions.assertEquals(itemDtoForGet.getRequestId(), items.get(0).getRequestId());
 
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
         Mockito
                 .verify(itemRepository, Mockito.times(1))
                 .findAllByOwnerId(1L);
@@ -447,15 +414,18 @@ public class ItemServiceTest {
     }
 
     @Test
-    void shouldGetAllItemsByUserIdEmpty() {
+    void shouldGetAllItemsByUserIdEmpty() throws IncorrectObjectException {
         Mockito
                 .when(itemRepository.findAllByOwnerId(1L))
                 .thenReturn(new ArrayList<>());
 
-        List<ItemDtoForGet> items = itemService.getAllItemsByUserId(1L);
+        List<ItemDtoForGet> items = itemService.getAllItemsByUserId(1L, null, null);
 
         Assertions.assertEquals(0, items.size());
 
+        Mockito
+                .verify(userService, Mockito.times(1))
+                .checkUserExist(1L);
         Mockito
                 .verify(itemRepository, Mockito.times(1))
                 .findAllByOwnerId(1L);
@@ -474,7 +444,7 @@ public class ItemServiceTest {
                 .when(itemRepository.searchByText(anyString()))
                 .thenReturn(List.of(item));
 
-        List<ItemDto> items = itemService.searchItemsByText("text");
+        List<ItemDto> items = itemService.searchItemsByText("text", null, null);
 
         Assertions.assertEquals(itemDto.getId(), items.get(0).getId());
         Assertions.assertEquals(itemDto.getName(), items.get(0).getName());
@@ -496,7 +466,7 @@ public class ItemServiceTest {
 
     @Test
     void shouldSearchItemsByNullText() {
-        List<ItemDto> items = itemService.searchItemsByText("");
+        List<ItemDto> items = itemService.searchItemsByText("", null, null);
 
         Assertions.assertEquals(0, items.size());
 
@@ -570,7 +540,7 @@ public class ItemServiceTest {
                 .when(commentRepository.findAllByItemId(1L))
                 .thenReturn(new ArrayList<>());
 
-        List<ItemDtoForGet> items = itemService.getAllItemsByUserIdByPages(2L, 1, 2);
+        List<ItemDtoForGet> items = itemService.getAllItemsByUserId(2L, 1, 2);
 
         Assertions.assertEquals(itemDto.getId(), items.get(0).getId());
         Assertions.assertEquals(itemDto.getName(), items.get(0).getName());
@@ -608,7 +578,7 @@ public class ItemServiceTest {
                 .when(itemRepository.findAllByOwnerIdByPages(anyLong(), any()))
                 .thenReturn(new ArrayList<>());
 
-        List<ItemDtoForGet> items = itemService.getAllItemsByUserIdByPages(2L, 1, 2);
+        List<ItemDtoForGet> items = itemService.getAllItemsByUserId(2L, 1, 2);
 
         Assertions.assertEquals(0, items.size());
 
@@ -633,7 +603,7 @@ public class ItemServiceTest {
                 .when(itemRepository.searchByTextByPages(anyString(), any()))
                 .thenReturn(List.of(item));
 
-        List<ItemDto> items = itemService.searchItemsByTextByPages("text", 1, 1);
+        List<ItemDto> items = itemService.searchItemsByText("text", 1, 1);
 
         Assertions.assertEquals(itemDto.getId(), items.get(0).getId());
         Assertions.assertEquals(itemDto.getName(), items.get(0).getName());
@@ -657,7 +627,7 @@ public class ItemServiceTest {
     void shouldSearchItemsByTextByPagesWrongParameters() {
         final IllegalArgumentException exception1 = Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> itemService.searchItemsByTextByPages("text", -1, 1));
+                () -> itemService.searchItemsByText("text", -1, 1));
 
         Mockito
                 .verify(itemRepository, Mockito.times(0))
@@ -666,7 +636,7 @@ public class ItemServiceTest {
 
         final IllegalArgumentException exception2 = Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> itemService.searchItemsByTextByPages("text", 1, 0));
+                () -> itemService.searchItemsByText("text", 1, 0));
 
         Mockito
                 .verify(itemRepository, Mockito.times(0))

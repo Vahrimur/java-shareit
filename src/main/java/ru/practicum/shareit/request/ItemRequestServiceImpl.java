@@ -32,14 +32,16 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRepository itemRepository;
 
-    public ItemRequestServiceImpl(ItemRequestRepository itemRequestRepository, UserService userService, ItemRepository itemRepository) {
+    public ItemRequestServiceImpl(
+            ItemRequestRepository itemRequestRepository, UserService userService, ItemRepository itemRepository) {
         this.itemRequestRepository = itemRequestRepository;
         this.userService = userService;
         this.itemRepository = itemRepository;
     }
 
     @Override
-    public ItemRequestDto addNewItemRequest(Long requesterId, ItemRequestDto itemRequestDto) throws IncorrectObjectException, IncorrectFieldException {
+    public ItemRequestDto addNewItemRequest(Long requesterId, ItemRequestDto itemRequestDto)
+            throws IncorrectObjectException, IncorrectFieldException {
         User requester = UserMapper.mapToUserEntity(userService.getUserById(requesterId));
         ItemRequest itemRequest = ItemRequestMapper.mapToItemRequestEntity(itemRequestDto, requester);
         checkCorrectDescription(itemRequest);
@@ -49,7 +51,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestForGetDto> getAllItemRequestsByRequesterId(Long requesterId) throws IncorrectObjectException {
+    public List<ItemRequestForGetDto> getAllItemRequestsByRequesterId(Long requesterId)
+            throws IncorrectObjectException {
         userService.checkUserExist(requesterId);
         List<ItemRequest> requests = itemRequestRepository.findAllByRequesterId(requesterId);
         List<ItemRequestForGetDto> requestDtos = new ArrayList<>();
@@ -67,35 +70,33 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestForGetDto> getAllItemRequests(Long requesterId) throws IncorrectObjectException {
+    public List<ItemRequestForGetDto> getAllItemRequests(Long requesterId, Integer from, Integer size)
+            throws IncorrectObjectException {
         userService.checkUserExist(requesterId);
-        List<ItemRequest> requests = itemRequestRepository.findAll(requesterId);
         List<ItemRequestForGetDto> requestDtos = new ArrayList<>();
-        if (requests.isEmpty()) {
-            return requestDtos;
-        }
-        for (ItemRequest itemRequest : requests) {
-            Long requestId = itemRequest.getId();
-            List<ItemDto> items = ItemMapper.mapToItemDto(itemRepository.findAllByRequestId(requestId));
-            requestDtos.add(ItemRequestForGetMapper.mapToItemRequestForGetDto(itemRequest, items));
-        }
-        return requestDtos;
-    }
 
-    @Override
-    public List<ItemRequestForGetDto> getAllItemRequestsByPages(Long requesterId, Integer from, Integer size) throws IncorrectObjectException {
-        userService.checkUserExist(requesterId);
-        checkPageableParams(from, size);
-        Pageable sortedDesc = PageRequest.of((from / size), size, Sort.by("created").descending());
-        List<ItemRequest> requests = itemRequestRepository.findAllByPages(requesterId, sortedDesc);
-        List<ItemRequestForGetDto> requestDtos = new ArrayList<>();
-        if (requests.isEmpty()) {
-            return requestDtos;
-        }
-        for (ItemRequest itemRequest : requests) {
-            Long requestId = itemRequest.getId();
-            List<ItemDto> items = ItemMapper.mapToItemDto(itemRepository.findAllByRequestId(requestId));
-            requestDtos.add(ItemRequestForGetMapper.mapToItemRequestForGetDto(itemRequest, items));
+        if (from == null && size == null) {
+            List<ItemRequest> requests = itemRequestRepository.findAll(requesterId);
+            if (requests.isEmpty()) {
+                return requestDtos;
+            }
+            for (ItemRequest itemRequest : requests) {
+                Long requestId = itemRequest.getId();
+                List<ItemDto> items = ItemMapper.mapToItemDto(itemRepository.findAllByRequestId(requestId));
+                requestDtos.add(ItemRequestForGetMapper.mapToItemRequestForGetDto(itemRequest, items));
+            }
+        } else {
+            checkPageableParams(from, size);
+            Pageable sortedDesc = PageRequest.of((from / size), size, Sort.by("created").descending());
+            List<ItemRequest> requests = itemRequestRepository.findAllByPages(requesterId, sortedDesc);
+            if (requests.isEmpty()) {
+                return requestDtos;
+            }
+            for (ItemRequest itemRequest : requests) {
+                Long requestId = itemRequest.getId();
+                List<ItemDto> items = ItemMapper.mapToItemDto(itemRepository.findAllByRequestId(requestId));
+                requestDtos.add(ItemRequestForGetMapper.mapToItemRequestForGetDto(itemRequest, items));
+            }
         }
         return requestDtos;
     }

@@ -31,23 +31,11 @@ public class BookingRepositoryTest {
     private BookingRepository bookingRepository;
 
     private final Item item = new Item(
-            null,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            null, "Дрель", "Простая дрель", true, 1L, null);
     private final User owner = new User(null, "user", "user@user.com");
     private final User booker = new User(null, "name2", "email@email.ru");
-    Booking booking = new Booking(
-            null,
-            LocalDateTime.now().plusSeconds(1),
-            LocalDateTime.now().plusSeconds(2),
-            null,
-            null,
-            null
-    );
+    private final Booking booking = new Booking(null, LocalDateTime.now().plusSeconds(1),
+            LocalDateTime.now().plusSeconds(2), null, null, null);
 
     @BeforeEach
     void setUp() {

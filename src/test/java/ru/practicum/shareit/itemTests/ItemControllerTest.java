@@ -21,7 +21,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForGet;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -45,40 +44,13 @@ public class ItemControllerTest {
     private MockMvc mvc;
 
     private final Item item = new Item(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+            1L, "Дрель", "Простая дрель", true, 1L, null);
     private final ItemDto itemDto = ItemMapper.mapToItemDto(item);
-    User booker = new User(2L, "name2", "email@email.ru");
-    CommentDto commentDto = new CommentDto(
-            1L,
-            "Add comment from booker",
-            "name2",
-            LocalDateTime.of(2022, Month.OCTOBER, 18, 12, 30, 30)
-    );
-    List<CommentDto> comments = List.of(commentDto);
-    ItemDtoForGet itemDtoForGet = new ItemDtoForGet(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            null,
-            null,
-            comments,
-            null
-    );
-    Item itemForGet = new Item(
-            1L,
-            "Дрель",
-            "Простая дрель",
-            true,
-            1L,
-            null
-    );
+    private final CommentDto commentDto = new CommentDto(1L, "Add comment from booker", "name2",
+            LocalDateTime.of(2022, Month.OCTOBER, 18, 12, 30, 30));
+    private final List<CommentDto> comments = List.of(commentDto);
+    private final ItemDtoForGet itemDtoForGet = new ItemDtoForGet(1L, "Дрель", "Простая дрель",
+            true, null, null, comments, null);
 
     @Autowired
     public ItemControllerTest(ItemService itemService) {
@@ -166,7 +138,7 @@ public class ItemControllerTest {
 
     @Test
     void shouldFindAllItems() throws Exception {
-        when(itemService.getAllItemsByUserId(1L))
+        when(itemService.getAllItemsByUserId(1L, null, null))
                 .thenReturn(List.of(itemDtoForGet));
 
         mvc.perform(get("/items")
@@ -191,9 +163,12 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].requestId", is(itemDtoForGet.getRequestId())));
 
         Mockito.verify(itemService, Mockito.times(1))
-                .getAllItemsByUserId(1L);
+                .getAllItemsByUserId(1L, null, null);
+    }
 
-        when(itemService.getAllItemsByUserIdByPages(1L, 1, 1))
+    @Test
+    void shouldFindAllItemsByPages() throws Exception {
+        when(itemService.getAllItemsByUserId(1L, 1, 1))
                 .thenReturn(List.of(itemDtoForGet));
 
         mvc.perform(get("/items?from=1&size=1")
@@ -218,12 +193,12 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].requestId", is(itemDtoForGet.getRequestId())));
 
         Mockito.verify(itemService, Mockito.times(1))
-                .getAllItemsByUserIdByPages(1L, 1, 1);
+                .getAllItemsByUserId(1L, 1, 1);
     }
 
     @Test
     void shouldSearchItemByText() throws Exception {
-        when(itemService.searchItemsByText("Дрель"))
+        when(itemService.searchItemsByText("Дрель", null, null))
                 .thenReturn(List.of(itemDto));
 
         mvc.perform(get("/items/search?text=Дрель")
@@ -237,9 +212,12 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].available", is(itemDto.getAvailable())));
 
         Mockito.verify(itemService, Mockito.times(1))
-                .searchItemsByText("Дрель");
+                .searchItemsByText("Дрель", null, null);
+    }
 
-        when(itemService.searchItemsByTextByPages("Дрель", 1, 1))
+    @Test
+    void shouldSearchItemByTextByPages() throws Exception {
+        when(itemService.searchItemsByText("Дрель", 1, 1))
                 .thenReturn(List.of(itemDto));
 
         mvc.perform(get("/items/search?text=Дрель&from=1&size=1")
@@ -253,7 +231,7 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].available", is(itemDto.getAvailable())));
 
         Mockito.verify(itemService, Mockito.times(1))
-                .searchItemsByTextByPages("Дрель", 1, 1);
+                .searchItemsByText("Дрель", 1, 1);
     }
 
     @Test

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,23 +22,18 @@ import java.time.LocalDateTime;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemRequestRepositoryTest {
     @Autowired
-    private TestEntityManager em;
-    @Autowired
     private ItemRepository itemRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private ItemRequestRepository itemRequestRepository;
 
-    private final Item item = new Item(null, "Дрель", "Простая дрель", true, 1L, null);
+    private final Item item = new Item(
+            null, "Дрель", "Простая дрель", true, 1L, null);
     private final User owner = new User(null, "user", "user@user.com");
     private final User requester = new User(null, "user2", "user2@user.com");
     private final ItemRequest itemRequest = new ItemRequest(
-            null,
-            "Хотел бы воспользоваться дрелью",
-            requester,
-            LocalDateTime.now()
-    );
+            null, "Хотел бы воспользоваться дрелью", requester, LocalDateTime.now());
 
     @BeforeEach
     void setUp() {
@@ -53,8 +47,13 @@ public class ItemRequestRepositoryTest {
         itemRequestRepository.save(itemRequest);
 
         Assertions.assertEquals(1, itemRequestRepository.findAll().size());
+    }
 
+    @Test
+    void shouldFindAllAndGet() {
+        itemRequestRepository.save(itemRequest);
         ItemRequest foundItem = itemRequestRepository.findAll().get(0);
+
         Assertions.assertEquals(1, foundItem.getId());
         Assertions.assertEquals(itemRequest.getDescription(), foundItem.getDescription());
         Assertions.assertEquals(itemRequest.getRequester(), foundItem.getRequester());

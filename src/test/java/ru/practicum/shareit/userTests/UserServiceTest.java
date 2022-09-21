@@ -24,8 +24,8 @@ import static org.mockito.ArgumentMatchers.any;
 public class UserServiceTest {
 
     @Mock
-    UserRepository userRepository;
-    UserService userService;
+    private UserRepository userRepository;
+    private UserService userService;
     private MockitoSession session;
     private final User userCorrect = new User(1L, "user", "user@user.com");
     private final UserDto userCorrectDto = UserMapper.mapToUserDto(userCorrect);

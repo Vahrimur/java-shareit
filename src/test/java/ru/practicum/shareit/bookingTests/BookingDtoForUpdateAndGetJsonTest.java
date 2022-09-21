@@ -23,27 +23,14 @@ public class BookingDtoForUpdateAndGetJsonTest {
     @Test
     void testBookingDtoForUpdateAndGetDto() throws Exception {
         ItemDto item = new ItemDto(
-                1L,
-                "Дрель",
-                "Простая дрель",
-                true,
-                null
-        );
+                1L, "Дрель", "Простая дрель", true, null);
 
-        UserDto booker = new UserDto(
-                1L,
-                "user",
-                "user@user.com"
-        );
+        UserDto booker = new UserDto(1L, "user", "user@user.com");
 
-        BookingDtoForUpdateAndGet bookingDto = new BookingDtoForUpdateAndGet(
-                1L,
+        BookingDtoForUpdateAndGet bookingDto = new BookingDtoForUpdateAndGet(1L,
                 LocalDateTime.of(2022, Month.SEPTEMBER, 8, 12, 30, 30),
                 LocalDateTime.of(2022, Month.SEPTEMBER, 9, 12, 30, 30),
-                item,
-                booker,
-                BookingStatus.WAITING
-        );
+                item, booker, BookingStatus.WAITING);
 
         JsonContent<BookingDtoForUpdateAndGet> result = json.write(bookingDto);
 
@@ -54,7 +41,8 @@ public class BookingDtoForUpdateAndGetJsonTest {
         assertThat(result).hasJsonPath("$.booker");
         assertThat(result).hasJsonPath("$.status");
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(bookingDto.getId().intValue());
-        assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(bookingDto.getStart().toString());
+        assertThat(result).extractingJsonPathStringValue("$.start").
+                isEqualTo(bookingDto.getStart().toString());
         assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(bookingDto.getEnd().toString());
         assertThat(result).extractingJsonPathNumberValue("$.item.id")
                 .isEqualTo(bookingDto.getItem().getId().intValue());

@@ -26,28 +26,15 @@ public class ItemRequestForGetDtoJsonTests {
     void testItemRequestForGetDto() throws Exception {
         List<ItemDto> items = new ArrayList<>();
         ItemDto itemDto1 = new ItemDto(
-                1L,
-                "Дрель",
-                "Простая дрель",
-                true,
-                1L
-        );
+                1L, "Дрель", "Простая дрель", true, 1L);
         ItemDto itemDto2 = new ItemDto(
-                2L,
-                "Дрель б/у",
-                "Простая дрель б/у",
-                true,
-                1L
-        );
+                2L, "Дрель б/у", "Простая дрель б/у", true, 1L);
         items.add(itemDto1);
         items.add(itemDto2);
 
         ItemRequestForGetDto itemRequestForGetDto = new ItemRequestForGetDto(
-                2L,
-                "Хотел бы воспользоваться любой дрелью",
-                LocalDateTime.of(2022, Month.SEPTEMBER, 9, 12, 30, 30),
-                items
-        );
+                2L, "Хотел бы воспользоваться любой дрелью",
+                LocalDateTime.of(2022, Month.SEPTEMBER, 9, 12, 30, 30),items);
 
         JsonContent<ItemRequestForGetDto> result = json.write(itemRequestForGetDto);
 

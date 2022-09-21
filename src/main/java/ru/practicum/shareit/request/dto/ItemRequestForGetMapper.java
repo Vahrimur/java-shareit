@@ -27,7 +27,8 @@ public class ItemRequestForGetMapper {
         );
     }
 
-    public static List<ItemRequest> mapToItemRequestEntity(Iterable<ItemRequestForGetDto> itemRequestForGetDtos, User requester) {
+    public static List<ItemRequest> mapToItemRequestEntity(
+            Iterable<ItemRequestForGetDto> itemRequestForGetDtos, User requester) {
         List<ItemRequest> requests = new ArrayList<>();
         for (ItemRequestForGetDto request : itemRequestForGetDtos) {
             requests.add(mapToItemRequestEntity(request, requester));

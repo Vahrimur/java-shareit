@@ -56,17 +56,12 @@ public class UserServiceIntegrationTest {
     @Test
     void shouldDeleteUser() throws Exception {
         service.createUser(userDto);
-
-        TypedQuery<User> query = em.createQuery("Select u from User u", User.class);
-        List<User> users1 = query.getResultList();
-
-        assertThat(users1, is(not(empty())));
-
         service.deleteUser(1L);
 
-        List<User> users2 = query.getResultList();
+        TypedQuery<User> query = em.createQuery("Select u from User u", User.class);
+        List<User> users = query.getResultList();
 
-        assertThat(users2, is(empty()));
+        assertThat(users, is(empty()));
     }
 
     @Test

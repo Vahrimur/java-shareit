@@ -30,10 +30,8 @@ import static org.hamcrest.Matchers.is;
 @AutoConfigureMockMvc
 public class UserControllerTest {
     private final ObjectMapper mapper = new ObjectMapper();
-
     @MockBean
     private final UserService userService;
-
     @Autowired
     private MockMvc mvc;
     private final UserDto userDto = UserMapper.mapToUserDto(new User(1L, "user", "user@user.com"));
@@ -69,7 +67,10 @@ public class UserControllerTest {
 
         Mockito.verify(userService, Mockito.times(1))
                 .createUser(userDto);
+    }
 
+    @Test
+    void shouldCreateFailNoEmail() throws Exception {
         when(userService.createUser(userNoEmailDto))
                 .thenThrow(IncorrectFieldException.class);
 
@@ -98,7 +99,10 @@ public class UserControllerTest {
 
         Mockito.verify(userService, Mockito.times(1))
                 .updateUser(userDto, 1L);
+    }
 
+    @Test
+    void shouldUpdateFailByWrongUser() throws Exception {
         when(userService.updateUser(userDto, 2L))
                 .thenThrow(IncorrectObjectException.class);
 
@@ -138,7 +142,10 @@ public class UserControllerTest {
 
         Mockito.verify(userService, Mockito.times(1))
                 .getUserById(1L);
+    }
 
+    @Test
+    void shouldFindByIdFailNotFound() throws Exception {
         when(userService.getUserById(2L))
                 .thenThrow(IncorrectObjectException.class);
 

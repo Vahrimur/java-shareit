@@ -48,11 +48,7 @@ public class ItemRequestServiceIntegrationTest {
             null, "Дрель", "Простая дрель", true, null, null);
     private final ItemDto itemDto = ItemMapper.mapToItemDto(item);
     private final ItemRequest itemRequest = new ItemRequest(
-            null,
-            "Хотел бы воспользоваться дрелью",
-            null,
-            null
-    );
+            null, "Хотел бы воспользоваться дрелью", null, null);
 
     private final ItemRequestDto itemRequestDto = ItemRequestMapper.mapToItemRequestDto(itemRequest);
 
@@ -107,7 +103,7 @@ public class ItemRequestServiceIntegrationTest {
         List<ItemRequest> itemRequests = query.getResultList();
 
         List<ItemRequest> testRequests = ItemRequestForGetMapper.mapToItemRequestEntity(
-                itemRequestService.getAllItemRequests(2L), requesterGet);
+                itemRequestService.getAllItemRequests(2L, null, null), requesterGet);
 
         assertThat(testRequests, equalTo(itemRequests));
     }
@@ -125,7 +121,7 @@ public class ItemRequestServiceIntegrationTest {
         List<ItemRequest> itemRequests = query.getResultList();
 
         List<ItemRequest> testRequests = ItemRequestForGetMapper.mapToItemRequestEntity(
-                itemRequestService.getAllItemRequestsByPages(2L, 1, 2), requesterGet);
+                itemRequestService.getAllItemRequests(2L, 1, 2), requesterGet);
 
         assertThat(testRequests, equalTo(itemRequests));
     }
