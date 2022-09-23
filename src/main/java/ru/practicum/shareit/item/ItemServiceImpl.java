@@ -93,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
         userService.checkUserExist(userId);
         List<ItemDtoForGet> itemDtos = new ArrayList<>();
 
-        if (from == null && size == null) {
+        if (from == null || size == null) {
             List<Item> items = itemRepository.findAllByOwnerId(userId);
             if (items.isEmpty()) {
                 return new ArrayList<>();
@@ -136,7 +136,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchItemsByText(String text, Integer from, Integer size) {
         List<Item> items = new ArrayList<>();
         if (!"".equals(text)) {
-            if (from == null && size == null) {
+            if (from == null || size == null) {
                 items = itemRepository.searchByText(text);
             } else {
                 checkPageableParams(from, size);

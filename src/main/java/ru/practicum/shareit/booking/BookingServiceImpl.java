@@ -87,7 +87,7 @@ public class BookingServiceImpl implements BookingService {
         State bookingState = State.valueOf(state);
         List<Booking> bookings = new ArrayList<>();
 
-        if (from == null && size == null) {
+        if (from == null || size == null) {
             switch (bookingState) {
                 case ALL:
                     bookings = bookingRepository.findAllByBookerId(bookerId);
@@ -147,7 +147,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = new ArrayList<>();
         List<Item> itemsByOwnerId = itemRepository.findAllByOwnerId(ownerId);
 
-        if (from == null && size == null) {
+        if (from == null || size == null) {
             switch (bookingState) {
                 case ALL:
                     bookings = bookingRepository.findAllByItems(itemsByOwnerId);

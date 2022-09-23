@@ -75,7 +75,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userService.checkUserExist(requesterId);
         List<ItemRequestForGetDto> requestDtos = new ArrayList<>();
 
-        if (from == null && size == null) {
+        if (from == null || size == null) {
             List<ItemRequest> requests = itemRequestRepository.findAll(requesterId);
             if (requests.isEmpty()) {
                 return requestDtos;
