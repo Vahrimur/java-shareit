@@ -29,7 +29,8 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDtoForUpdateAndGet changeStatus(@RequestHeader(value = "X-Sharer-User-Id") Long ownerId,
-                                                  @PathVariable("bookingId") Long bookingId, @RequestParam boolean approved)
+                                                  @PathVariable("bookingId") Long bookingId,
+                                                  @RequestParam boolean approved)
             throws IncorrectObjectException, IncorrectFieldException {
         BookingDtoForUpdateAndGet booking = bookingService.changeBookingStatus(ownerId, bookingId, approved);
         log.info("PATCH /bookings/{}?approved={} by owner id={}", bookingId, approved, ownerId);
@@ -46,17 +47,21 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoForUpdateAndGet> findAllByBooker(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                                           @RequestParam(defaultValue = "ALL") String state)
+                                                           @RequestParam(defaultValue = "ALL") String state,
+                                                           @RequestParam(required = false) Integer from,
+                                                           @RequestParam(required = false) Integer size)
             throws IncorrectObjectException, IncorrectEnumException {
-        log.info("GET /bookings {} by booker id={}", state, bookerId);
-        return bookingService.getAllBookingsByBookerId(bookerId, state);
+        log.info("GET /bookings {} by booker id={} from {}, size {}", state, bookerId, from, size);
+        return bookingService.getAllBookingsByBookerId(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDtoForUpdateAndGet> findAllByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                          @RequestParam(defaultValue = "ALL") String state)
+                                                          @RequestParam(defaultValue = "ALL") String state,
+                                                          @RequestParam(required = false) Integer from,
+                                                          @RequestParam(required = false) Integer size)
             throws IncorrectObjectException, IncorrectEnumException {
-        log.info("GET /bookings/owner {} by owner id={}", state, ownerId);
-        return bookingService.getAllBookingsByOwnerId(ownerId, state);
+        log.info("GET /bookings/owner {} by owner id={} from {}, size {}", state, ownerId, from, size);
+        return bookingService.getAllBookingsByOwnerId(ownerId, state, from, size);
     }
 }

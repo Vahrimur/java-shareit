@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
             throws IncorrectFieldException, IncorrectObjectException {
         User user = UserMapper.mapToUserEntity(userDto);
         user.setId(userId);
-        checkUserExist(user.getId());
+        checkUserExist(userId);
         checkCorrectEmail(user);
         if (user.getEmail() == null) {
             user.setEmail(userRepository.getById(user.getId()).getEmail());

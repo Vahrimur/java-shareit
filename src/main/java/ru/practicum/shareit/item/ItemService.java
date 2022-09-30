@@ -16,9 +16,10 @@ public interface ItemService {
 
     ItemDtoForGet getItemById(Long itemId, Long userId) throws IncorrectObjectException, IncorrectFieldException;
 
-    List<ItemDtoForGet> getAllItemsByUserId(Long userId);
+    List<ItemDtoForGet> getAllItemsByUserId(Long userId, Integer from, Integer size)
+            throws IncorrectObjectException;
 
-    List<ItemDto> searchItemsByText(String text);
+    List<ItemDto> searchItemsByText(String text, Integer from, Integer size);
 
     void checkItemExist(Long id) throws IncorrectObjectException, IncorrectFieldException;
 

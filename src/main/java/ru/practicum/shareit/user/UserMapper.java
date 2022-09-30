@@ -27,4 +27,12 @@ public class UserMapper {
                 userDto.getEmail()
         );
     }
+
+    public static List<User> mapToUserEntity(Iterable<UserDto> userDtos) {
+        List<User> users = new ArrayList<>();
+        for (UserDto user : userDtos) {
+            users.add(mapToUserEntity(user));
+        }
+        return users;
+    }
 }

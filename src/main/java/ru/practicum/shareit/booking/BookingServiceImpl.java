@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForUpdateAndGet;
@@ -76,64 +79,134 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoForUpdateAndGet> getAllBookingsByBookerId(Long bookerId, String state)
-            throws IncorrectObjectException, IncorrectEnumException {
+    public List<BookingDtoForUpdateAndGet> getAllBookingsByBookerId(
+            Long bookerId, String state, Integer from, Integer size)
+            throws IncorrectEnumException, IncorrectObjectException {
         userService.checkUserExist(bookerId);
         checkState(state);
         State bookingState = State.valueOf(state);
         List<Booking> bookings = new ArrayList<>();
-        switch (bookingState) {
-            case ALL:
-                bookings = bookingRepository.findAllByBookerId(bookerId);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.WAITING);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.REJECTED);
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findAllByBookerIdCurrent(bookerId, LocalDateTime.now());
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByBookerIdFuture(bookerId, LocalDateTime.now());
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByBookerIdPast(bookerId, LocalDateTime.now());
-                break;
+
+        if (from == null || size == null) {
+            switch (bookingState) {
+                case ALL:
+                    bookings = bookingRepository.findAllByBookerId(bookerId);
+                    break;
+                case WAITING:
+                    bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.WAITING);
+                    break;
+                case REJECTED:
+                    bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.REJECTED);
+                    break;
+                case CURRENT:
+                    bookings = bookingRepository.findAllByBookerIdCurrent(bookerId, LocalDateTime.now());
+                    break;
+                case FUTURE:
+                    bookings = bookingRepository.findAllByBookerIdFuture(bookerId, LocalDateTime.now());
+                    break;
+                case PAST:
+                    bookings = bookingRepository.findAllByBookerIdPast(bookerId, LocalDateTime.now());
+                    break;
+            }
+        } else {
+            checkPageableParams(from, size);
+            Pageable sorted = PageRequest.of((from / size), size, Sort.by("start").descending());
+            switch (bookingState) {
+                case ALL:
+                    bookings = bookingRepository.findAllByBookerIdByPages(bookerId, sorted);
+                    break;
+                case WAITING:
+                    bookings = bookingRepository.findAllByBookerIdAndStatusByPages(bookerId,
+                            BookingStatus.WAITING, sorted);
+                    break;
+                case REJECTED:
+                    bookings = bookingRepository.findAllByBookerIdAndStatusByPages(bookerId,
+                            BookingStatus.REJECTED, sorted);
+                    break;
+                case CURRENT:
+                    bookings = bookingRepository.findAllByBookerIdCurrentByPages(bookerId, LocalDateTime.now(), sorted);
+                    break;
+                case FUTURE:
+                    bookings = bookingRepository.findAllByBookerIdFutureByPages(bookerId, LocalDateTime.now(), sorted);
+                    break;
+                case PAST:
+                    bookings = bookingRepository.findAllByBookerIdPastByPages(bookerId, LocalDateTime.now(), sorted);
+                    break;
+            }
         }
         return BookingForUpdateAndGetMapper.mapToBookingDto(bookings);
     }
 
     @Override
-    public List<BookingDtoForUpdateAndGet> getAllBookingsByOwnerId(Long ownerId, String state)
+    public List<BookingDtoForUpdateAndGet> getAllBookingsByOwnerId(
+            Long ownerId, String state, Integer from, Integer size)
             throws IncorrectObjectException, IncorrectEnumException {
         userService.checkUserExist(ownerId);
         checkState(state);
         State bookingState = State.valueOf(state);
         List<Booking> bookings = new ArrayList<>();
         List<Item> itemsByOwnerId = itemRepository.findAllByOwnerId(ownerId);
-        switch (bookingState) {
-            case ALL:
-                bookings = bookingRepository.findAllByItems(itemsByOwnerId);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByItemsAndStatus(itemsByOwnerId, BookingStatus.WAITING);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByItemsAndStatus(itemsByOwnerId, BookingStatus.REJECTED);
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findAllByItemsCurrent(itemsByOwnerId, LocalDateTime.now());
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByItemsFuture(itemsByOwnerId, LocalDateTime.now());
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByItemsPast(itemsByOwnerId, LocalDateTime.now());
-                break;
+
+        if (from == null || size == null) {
+            switch (bookingState) {
+                case ALL:
+                    bookings = bookingRepository.findAllByItems(itemsByOwnerId);
+                    break;
+                case WAITING:
+                    bookings = bookingRepository.findAllByItemsAndStatus(itemsByOwnerId, BookingStatus.WAITING);
+                    break;
+                case REJECTED:
+                    bookings = bookingRepository.findAllByItemsAndStatus(itemsByOwnerId, BookingStatus.REJECTED);
+                    break;
+                case CURRENT:
+                    bookings = bookingRepository.findAllByItemsCurrent(itemsByOwnerId, LocalDateTime.now());
+                    break;
+                case FUTURE:
+                    bookings = bookingRepository.findAllByItemsFuture(itemsByOwnerId, LocalDateTime.now());
+                    break;
+                case PAST:
+                    bookings = bookingRepository.findAllByItemsPast(itemsByOwnerId, LocalDateTime.now());
+                    break;
+            }
+        } else {
+            checkPageableParams(from, size);
+            Pageable sorted = PageRequest.of((from / size), size, Sort.by("start").descending());
+            switch (bookingState) {
+                case ALL:
+                    bookings = bookingRepository.findAllByItemsByPages(itemsByOwnerId, sorted);
+                    break;
+                case WAITING:
+                    bookings = bookingRepository.findAllByItemsAndStatusByPages(itemsByOwnerId,
+                            BookingStatus.WAITING, sorted);
+                    break;
+                case REJECTED:
+                    bookings = bookingRepository.findAllByItemsAndStatusByPages(itemsByOwnerId,
+                            BookingStatus.REJECTED, sorted);
+                    break;
+                case CURRENT:
+                    bookings = bookingRepository.findAllByItemsCurrentByPages(
+                            itemsByOwnerId, LocalDateTime.now(), sorted);
+                    break;
+                case FUTURE:
+                    bookings = bookingRepository.findAllByItemsFutureByPages(
+                            itemsByOwnerId, LocalDateTime.now(), sorted);
+                    break;
+                case PAST:
+                    bookings = bookingRepository.findAllByItemsPastByPages(
+                            itemsByOwnerId, LocalDateTime.now(), sorted);
+                    break;
+            }
         }
         return BookingForUpdateAndGetMapper.mapToBookingDto(bookings);
+    }
+
+    private void checkPageableParams(Integer from, Integer size) {
+        if (from < 0) {
+            throw new IllegalArgumentException("Index of start element cannot be less zero");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Page size cannot be less or equal zero");
+        }
     }
 
     private void checkState(String state) throws IncorrectEnumException {

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.IncorrectObjectException;
-import ru.practicum.shareit.exception.SameEmailException;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 
 import java.util.List;
@@ -17,7 +16,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@RequestBody UserDto userDto) throws IncorrectFieldException, SameEmailException {
+    public UserDto create(@RequestBody UserDto userDto) throws IncorrectFieldException {
         userDto = userService.createUser(userDto);
         log.info("POST /users {}", userDto);
         return userDto;
@@ -25,7 +24,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto update(@RequestBody UserDto userDto, @PathVariable("userId") Long userId)
-            throws IncorrectFieldException, SameEmailException, IncorrectObjectException {
+            throws IncorrectFieldException, IncorrectObjectException {
         userDto = userService.updateUser(userDto, userId);
         log.info("PATCH /users {}", userDto);
         return userDto;

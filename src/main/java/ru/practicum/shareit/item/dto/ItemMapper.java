@@ -34,4 +34,12 @@ public class ItemMapper {
         }
         return itemDtos;
     }
+
+    public static List<Item> mapToItemEntity(Iterable<ItemDto> itemDtos, Long ownerId) {
+        List<Item> items = new ArrayList<>();
+        for (ItemDto item : itemDtos) {
+            items.add(mapToItemEntity(item, ownerId));
+        }
+        return items;
+    }
 }

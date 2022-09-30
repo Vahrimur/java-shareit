@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.Booking;
@@ -86,31 +88,61 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoForGet> getAllItemsByUserId(Long userId) {
-        List<Item> items = itemRepository.findAllByOwnerId(userId);
+    public List<ItemDtoForGet> getAllItemsByUserId(Long userId, Integer from, Integer size)
+            throws IncorrectObjectException {
+        userService.checkUserExist(userId);
         List<ItemDtoForGet> itemDtos = new ArrayList<>();
-        if (items.isEmpty()) {
-            return new ArrayList<>();
-        }
-        for (Item item : items) {
-            Long itemId = item.getId();
-            BookingDto lastBookingDto = null;
-            BookingDto nextBookingDto = null;
-            if (Objects.equals(item.getOwnerId(), userId)) {
-                lastBookingDto = findLastBooking(itemId);
-                nextBookingDto = findNextBooking(itemId);
+
+        if (from == null || size == null) {
+            List<Item> items = itemRepository.findAllByOwnerId(userId);
+            if (items.isEmpty()) {
+                return new ArrayList<>();
             }
-            List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
-            itemDtos.add(ItemForGetMapper.mapToItemDto(item, lastBookingDto, nextBookingDto, comments));
+            for (Item item : items) {
+                Long itemId = item.getId();
+                BookingDto lastBookingDto = null;
+                BookingDto nextBookingDto = null;
+                if (Objects.equals(item.getOwnerId(), userId)) {
+                    lastBookingDto = findLastBooking(itemId);
+                    nextBookingDto = findNextBooking(itemId);
+                }
+                List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
+                itemDtos.add(ItemForGetMapper.mapToItemDto(item, lastBookingDto, nextBookingDto, comments));
+            }
+        } else {
+            checkPageableParams(from, size);
+            Pageable sorted = PageRequest.of((from / size), size);
+            List<Item> items = itemRepository.findAllByOwnerIdByPages(userId, sorted);
+
+            if (items.isEmpty()) {
+                return new ArrayList<>();
+            }
+            for (Item item : items) {
+                Long itemId = item.getId();
+                BookingDto lastBookingDto = null;
+                BookingDto nextBookingDto = null;
+                if (Objects.equals(item.getOwnerId(), userId)) {
+                    lastBookingDto = findLastBooking(itemId);
+                    nextBookingDto = findNextBooking(itemId);
+                }
+                List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
+                itemDtos.add(ItemForGetMapper.mapToItemDto(item, lastBookingDto, nextBookingDto, comments));
+            }
         }
         return itemDtos;
     }
 
     @Override
-    public List<ItemDto> searchItemsByText(String text) {
+    public List<ItemDto> searchItemsByText(String text, Integer from, Integer size) {
         List<Item> items = new ArrayList<>();
-        if (!text.equals("")) {
-            items = itemRepository.searchByText(text);
+        if (!"".equals(text)) {
+            if (from == null || size == null) {
+                items = itemRepository.searchByText(text);
+            } else {
+                checkPageableParams(from, size);
+                Pageable sorted = PageRequest.of((from / size), size);
+                items = itemRepository.searchByTextByPages(text, sorted);
+            }
         }
         return ItemMapper.mapToItemDto(items);
     }
@@ -127,6 +159,15 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = CommentMapper.mapToCommentEntity(commentDto, item, author);
         comment.setCreated(LocalDateTime.now());
         return CommentMapper.mapToCommentDto(commentRepository.save(comment));
+    }
+
+    private void checkPageableParams(Integer from, Integer size) {
+        if (from < 0) {
+            throw new IllegalArgumentException("Index of start element cannot be less zero");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Page size cannot be less or equal zero");
+        }
     }
 
     private void checkCorrectItem(Item item) throws IncorrectFieldException {

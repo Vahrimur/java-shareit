@@ -18,12 +18,12 @@ public interface BookingService {
     BookingDtoForUpdateAndGet getBookingById(Long bookingId, Long userId)
             throws IncorrectObjectException, IncorrectFieldException;
 
-    List<BookingDtoForUpdateAndGet> getAllBookingsByBookerId(Long bookerId, String state)
-            throws IncorrectObjectException, IncorrectEnumException;
-
-    List<BookingDtoForUpdateAndGet> getAllBookingsByOwnerId(Long ownerId, String state)
-            throws IncorrectObjectException, IncorrectEnumException;
-
     void checkCorrectItemBookerAndBookingEnded(Long userId, Long itemId)
             throws IncorrectObjectException, IncorrectFieldException;
+
+    List<BookingDtoForUpdateAndGet> getAllBookingsByBookerId(Long bookerId, String state, Integer from, Integer size)
+            throws IncorrectEnumException, IncorrectObjectException;
+
+    List<BookingDtoForUpdateAndGet> getAllBookingsByOwnerId(Long ownerId, String state, Integer from, Integer size)
+            throws IncorrectObjectException, IncorrectEnumException;
 }
