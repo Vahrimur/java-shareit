@@ -21,7 +21,6 @@ public class ItemRequestController {
     public ResponseEntity<Object> createRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @RequestBody @Valid ItemRequestDto itemRequestDto)
             throws IncorrectFieldException {
-        checkCorrectDescription(itemRequestDto);
         log.info("Creating request {}, userId={}", itemRequestDto, userId);
         return itemRequestClient.createRequest(userId, itemRequestDto);
     }
@@ -36,9 +35,6 @@ public class ItemRequestController {
     public ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") Long requesterId,
                                          @RequestParam(required = false) Integer from,
                                          @RequestParam(required = false) Integer size) {
-        if (!(from == null) && !(size == null)) {
-            checkPageableParams(from, size);
-        }
         log.info("Get  requests by requester id={}, from {} size {}", requesterId, from, size);
         return itemRequestClient.getAllItemRequests(requesterId, from, size);
     }
@@ -48,20 +44,5 @@ public class ItemRequestController {
                                           @PathVariable("requestId") Long requestId) {
         log.info("Get request id=" + requestId);
         return itemRequestClient.getItemRequestById(requesterId, requestId);
-    }
-
-    private void checkCorrectDescription(ItemRequestDto itemRequestDto) throws IncorrectFieldException {
-        if (itemRequestDto.getDescription() == null || itemRequestDto.getDescription().equals("")) {
-            throw new IncorrectFieldException("The description of the item request cannot be empty");
-        }
-    }
-
-    private void checkPageableParams(Integer from, Integer size) {
-        if (from < 0) {
-            throw new IllegalArgumentException("Index of start element cannot be less zero");
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Page size cannot be less or equal zero");
-        }
     }
 }

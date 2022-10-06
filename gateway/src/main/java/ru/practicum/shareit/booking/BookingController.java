@@ -12,8 +12,6 @@ import ru.practicum.shareit.exception.IncorrectEnumException;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.Arrays;
 
 @Controller
 @RequestMapping(path = "/bookings")
@@ -27,7 +25,6 @@ public class BookingController {
     public ResponseEntity<Object> createBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                                 @RequestBody @Valid BookItemRequestDto bookingDto)
             throws IncorrectFieldException {
-        checkCorrectTime(bookingDto);
         log.info("Creating booking {}, userId={}", bookingDto, userId);
         return bookingClient.createBooking(userId, bookingDto);
     }
@@ -53,10 +50,6 @@ public class BookingController {
                                                       @RequestParam(required = false) Integer from,
                                                       @RequestParam(required = false) Integer size)
             throws IncorrectEnumException {
-        checkState(state);
-        if (!(from == null) || !(size == null)) {
-            checkPageableParams(from, size);
-        }
         log.info("Get booking with state {}, bookerId={}, from={}, size={}", state, bookerId, from, size);
         return bookingClient.getBookingsByBooker(bookerId, state, from, size);
     }
@@ -67,39 +60,7 @@ public class BookingController {
                                                      @RequestParam(required = false) Integer from,
                                                      @RequestParam(required = false) Integer size)
             throws IncorrectEnumException {
-        checkState(state);
-        if (!(from == null) || !(size == null)) {
-            checkPageableParams(from, size);
-        }
         log.info("Get booking with state {}, ownerId={}, from={}, size={}", state, ownerId, from, size);
         return bookingClient.getBookingsByOwner(ownerId, state, from, size);
-    }
-
-
-    private void checkCorrectTime(BookItemRequestDto booking) throws IncorrectFieldException {
-        if (booking.getEnd().isBefore(LocalDateTime.now())) {
-            throw new IncorrectFieldException("The end of the booking cannot be in the past");
-        }
-        if (booking.getEnd().isBefore(booking.getStart())) {
-            throw new IncorrectFieldException("The end of the booking cannot be earlier than the beginning");
-        }
-        if (booking.getStart().isBefore(LocalDateTime.now())) {
-            throw new IncorrectFieldException("The beginning of the booking cannot be in the past");
-        }
-    }
-
-    private void checkState(String state) throws IncorrectEnumException {
-        if (Arrays.stream(State.values()).noneMatch((st) -> st.name().equals(state))) {
-            throw new IncorrectEnumException("Unknown state: " + state);
-        }
-    }
-
-    private void checkPageableParams(Integer from, Integer size) {
-        if (from < 0) {
-            throw new IllegalArgumentException("Index of start element cannot be less zero");
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Page size cannot be less or equal zero");
-        }
     }
 }
