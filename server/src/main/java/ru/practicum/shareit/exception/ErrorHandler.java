@@ -50,13 +50,6 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler(IncorrectEnumException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponseShort handleIncorrectEnumException(final IncorrectEnumException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponseShort(e.getMessage());
-    }
-
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
