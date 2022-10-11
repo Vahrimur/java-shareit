@@ -170,7 +170,7 @@ public class BookingServiceTest {
                 .verify(userService, Mockito.times(1))
                 .checkUserExist(1L);
         Mockito
-                .verify(bookingRepository, Mockito.times(1))
+                .verify(bookingRepository, Mockito.times(2))
                 .findById(1L);
         Mockito
                 .verify(bookingRepository, Mockito.times(2))
@@ -224,7 +224,7 @@ public class BookingServiceTest {
                 .verify(userService, Mockito.times(1))
                 .checkUserExist(1L);
         Mockito
-                .verify(bookingRepository, Mockito.times(1))
+                .verify(bookingRepository, Mockito.times(2))
                 .findById(1L);
         Mockito
                 .verify(bookingRepository, Mockito.times(2))
@@ -285,9 +285,6 @@ public class BookingServiceTest {
         Mockito
                 .when(bookingRepository.findAll())
                 .thenReturn(List.of(booking));
-        Mockito
-                .when(itemRepository.getById(1L))
-                .thenReturn(item);
 
         final IncorrectFieldException exception = Assertions.assertThrows(
                 IncorrectFieldException.class,
@@ -304,12 +301,6 @@ public class BookingServiceTest {
         Mockito
                 .verify(bookingRepository, Mockito.times(2))
                 .findAll();
-        Mockito
-                .verify(itemRepository, Mockito.times(1))
-                .getById(1L);
-        Mockito
-                .verify(itemService, Mockito.times(1))
-                .checkCorrectItemOwner(1L, 1L);
         Mockito
                 .verifyNoMoreInteractions(
                         bookingRepository,
@@ -351,7 +342,7 @@ public class BookingServiceTest {
                 .verify(bookingRepository, Mockito.times(2))
                 .findAll();
         Mockito
-                .verify(bookingRepository, Mockito.times(1))
+                .verify(bookingRepository, Mockito.times(2))
                 .findById(1L);
         Mockito
                 .verify(itemRepository, Mockito.times(1))

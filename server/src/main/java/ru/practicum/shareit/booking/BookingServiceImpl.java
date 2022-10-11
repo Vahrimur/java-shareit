@@ -54,10 +54,10 @@ public class BookingServiceImpl implements BookingService {
             throws IncorrectObjectException, IncorrectFieldException {
         userService.checkUserExist(ownerId);
         checkBookingExist(bookingId);
+        checkSameStatus(bookingId, approved);
         Booking booking = bookingRepository.findById(bookingId).get();
         Item item = itemRepository.getById(booking.getItem().getId());
         itemService.checkCorrectItemOwner(item.getId(), ownerId);
-        checkSameStatus(booking, approved);
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
         } else {
@@ -71,8 +71,8 @@ public class BookingServiceImpl implements BookingService {
         userService.checkUserExist(userId);
         checkBookingExist(bookingId);
         Booking booking = bookingRepository.findById(bookingId).get();
-        Item item = itemRepository.getById(booking.getItem().getId());
-        checkCorrectItemOwnerOrBooker(item, booking, userId);
+        Long itemId = booking.getItem().getId();
+        checkCorrectItemOwnerOrBooker(itemId, bookingId, userId);
         return BookingForUpdateAndGetMapper.mapToBookingDto(bookingRepository.getById(bookingId));
     }
 
@@ -136,7 +136,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDtoForUpdateAndGet> getAllBookingsByOwnerId(
             Long ownerId, String state, Integer from, Integer size)
-            throws IncorrectObjectException, IncorrectEnumException {
+            throws IncorrectObjectException {
         userService.checkUserExist(ownerId);
         State bookingState = State.valueOf(state);
         List<Booking> bookings = new ArrayList<>();
@@ -208,15 +208,18 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void checkSameStatus(Booking booking, boolean approved) throws IncorrectFieldException {
+    private void checkSameStatus(Long bookingId, boolean approved) throws IncorrectFieldException {
+        Booking booking = bookingRepository.findById(bookingId).get();
         if (booking.getStatus().equals(BookingStatus.APPROVED) && approved
                 || booking.getStatus().equals(BookingStatus.REJECTED) && !approved) {
             throw new IncorrectFieldException("It is not possible to update the booking status to the same");
         }
     }
 
-    private void checkCorrectItemOwnerOrBooker(Item item, Booking booking, Long userId)
+    private void checkCorrectItemOwnerOrBooker(Long itemId, Long bookingId, Long userId)
             throws IncorrectObjectException {
+        Booking booking = bookingRepository.findById(bookingId).get();
+        Item item = itemRepository.getById(itemId);
         if (!booking.getBooker().getId().equals(userId) && !item.getOwnerId().equals(userId)) {
             throw new IncorrectObjectException("Incorrect item owner or booker ID is specified");
         }
