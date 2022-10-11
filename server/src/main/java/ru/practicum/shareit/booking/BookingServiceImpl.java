@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForUpdateAndGet;
 import ru.practicum.shareit.booking.dto.BookingForUpdateAndGetMapper;
 import ru.practicum.shareit.booking.dto.BookingMapper;
-import ru.practicum.shareit.exception.IncorrectEnumException;
 import ru.practicum.shareit.exception.IncorrectFieldException;
 import ru.practicum.shareit.exception.IncorrectObjectException;
 import ru.practicum.shareit.item.ItemRepository;
